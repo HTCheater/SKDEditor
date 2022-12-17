@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ff000000">
+
+    <com.chichar.skdeditor.codeeditor.CodeEditor
+        android:id="@+id/editor"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#ff000000"
+        android:dropDownWidth="150.0dip"
+        android:dropDownHorizontalOffset="0.0dip"
+        android:fadeScrollbars="false"
+        android:gravity="start|center|top"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarSize="5dp"
+        android:scrollbarThumbVertical="@drawable/scroll"
+        android:scrollbars="vertical"
+        android:textColor="#ffffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/navbar"
+        android:layout_width="wrap_content"
+        android:layout_height="40.0dip"
+        android:background="@drawable/navbar_bg"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="@id/editor"
+        app:layout_constraintLeft_toLeftOf="@id/editor"
+        app:layout_constraintRight_toRightOf="@id/editor">
+
+        <ImageButton
+            android:id="@+id/expandFind"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:background="#00000000"
+            android:minWidth="48.0dip"
+            android:src="@drawable/ic_round_search_24" />
+
+        <ImageButton
+            android:id="@+id/onClickSave"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:background="#00000000"
+            android:minWidth="48.0dip"
+            android:src="@drawable/ic_round_save_24" />
+
+        <ImageButton
+            android:id="@+id/openInExternalEditor"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:background="#00000000"
+            android:minWidth="48.0dip"
+            android:src="@drawable/ic_baseline_open_in_new_24" />
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#000"
+        android:orientation="vertical"
+        android:padding="5dp"
+        app:cardCornerRadius="10dp"
+        android:focusable="true"
+        app:layout_constraintLeft_toLeftOf="@id/editor"
+        app:layout_constraintRight_toRightOf="@id/editor"
+        app:layout_constraintTop_toTopOf="@id/editor">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/searchbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#111"
+            android:orientation="vertical"
+            android:padding="5dp"
+            app:layout_constraintLeft_toLeftOf="@id/editor"
+            app:layout_constraintRight_toRightOf="@id/editor"
+            app:layout_constraintTop_toTopOf="@id/editor">
+
+            <EditText
+                android:textCursorDrawable="@null"
+                android:maxLines="5"
+                android:id="@+id/findtext"
+                android:layout_width="250dp"
+                android:layout_height="45dp"
+                android:hint="Find..."
+                android:textColor="@android:color/white"
+                android:textColorHint="#aaa"
+                app:layout_constraintBottom_toTopOf="@id/replacetext"
+                app:layout_constraintLeft_toLeftOf="@id/searchbar"
+                app:layout_constraintTop_toTopOf="@id/searchbar"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:textCursorDrawable="@android:color/transparent"
+                android:maxLines="5"
+                android:id="@+id/replacetext"
+                android:layout_width="250dp"
+                android:layout_height="45dp"
+                android:hint="Replace..."
+                android:textColor="@android:color/white"
+                android:textColorHint="#aaa"
+                app:layout_constraintBottom_toTopOf="@id/findInText"
+                app:layout_constraintLeft_toLeftOf="@id/searchbar"
+                app:layout_constraintTop_toBottomOf="@id/findtext"
+                tools:ignore="HardcodedText" />
+
+            <CheckBox
+                android:id="@+id/regex"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:text="Regex"
+                android:textColor="@android:color/white"
+                app:layout_constraintLeft_toRightOf="@id/findtext"
+                app:layout_constraintTop_toTopOf="@id/searchbar"
+                tools:ignore="HardcodedText" />
+
+            <CheckBox
+                android:id="@+id/matchcase"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:text="Match case"
+                android:textColor="@android:color/white"
+                app:layout_constraintLeft_toRightOf="@id/findtext"
+                app:layout_constraintTop_toBottomOf="@id/regex"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:background="#00000000"
+                android:paddingStart="50dp"
+                android:paddingEnd="50dp"
+                android:id="@+id/findInText"
+                android:clickable="true"
+                android:focusable="true"
+                android:textAllCaps="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Find"
+                android:textColor="#FF7B46bC"
+                android:textSize="15sp"
+                app:layout_constraintTop_toBottomOf="@id/replacetext"
+                app:layout_constraintLeft_toLeftOf="@id/searchbar"
+                app:layout_constraintRight_toLeftOf="@id/replaceInText"
+                />
+            <TextView
+                android:background="#00000000"
+                android:paddingStart="50dp"
+                android:paddingEnd="50dp"
+                android:id="@+id/replaceInText"
+                android:clickable="true"
+                android:focusable="true"
+                android:textAllCaps="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Replace all"
+                android:textColor="#FF7B46bC"
+                android:textSize="15sp"
+                app:layout_constraintLeft_toRightOf="@id/findInText"
+                app:layout_constraintTop_toBottomOf="@id/replacetext"
+                app:layout_constraintRight_toRightOf="@id/searchbar"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#4000"
+        android:elevation="99dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/purple_200"
+            android:indeterminateTintMode="src_atop" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.constraintlayout.widget.ConstraintLayout>

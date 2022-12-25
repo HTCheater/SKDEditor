@@ -11,6 +11,8 @@ import java.util.List;
 
 public class PussyUser {
 
+	private static String protectedCacheFolder;
+
 	private static String appFilesFolder;
 
 	private static String appDataFolder;
@@ -37,6 +39,7 @@ public class PussyUser {
 
 	@SuppressLint("SdCardPath")
 	public static void makeUser(Context context) {
+		protectedCacheFolder = context.getCacheDir().getAbsolutePath();
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
 		new PussyShell().cmd("pm list users").to(stdout, stderr).exec();
@@ -66,5 +69,9 @@ public class PussyUser {
 		appDataFolder = "/data/user/" + id + "/" + context.getPackageName();
 		appFilesFolder = appDataFolder + "/files";
 		PussyUser.id = id;
+	}
+
+	public static String getProtectedCacheFolder() {
+		return protectedCacheFolder;
 	}
 }

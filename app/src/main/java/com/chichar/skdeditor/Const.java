@@ -32,4 +32,6 @@ public final class Const {
 			put("com.ChillyRoom.DungeonShooter.v2.playerprefs.xml", PussyUser.getDataFolder() + "/com.ChillyRoom.DungeonShooter/shared_prefs/com.ChillyRoom.DungeonShooter.v2.playerprefs.xml");
 		}
 	};
+
+	public static final String pkg = "com.ChillyRoom.DungeonShooter";
 }

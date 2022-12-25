@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,7 +19,7 @@ import com.chichar.skdeditor.R;
 import com.chichar.skdeditor.activities.MenuActivity;
 import com.chichar.skdeditor.utils.CryptUtil;
 import com.chichar.skdeditor.utils.FileUtils;
-import com.chichar.skdeditor.utils.xml.XmlUtils;
+import com.chichar.skdeditor.utils.XmlUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.rosstonovsky.pussyBox.PussyFile;
 import com.rosstonovsky.pussyBox.PussyShell;
@@ -39,12 +38,10 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -134,7 +131,6 @@ public class BackupPicker extends BottomSheetDialogFragment {
 				requireView().findViewById(R.id.discard).setOnClickListener(v -> super.dismiss());
 				requireView().findViewById(R.id.restore).setOnClickListener(v -> {
 					View progressBar = view.findViewById(R.id.loading);
-					//view.la
 					progressBar.setVisibility(View.VISIBLE);
 					ArrayList<String> checkedFiles = ((BackupPickerAdapter) picker.getAdapter()).getCheckedArr();
 					if (checkedFiles.size() == 0) {
@@ -254,7 +250,14 @@ public class BackupPicker extends BottomSheetDialogFragment {
 	private List<String> getFileNames(String path) throws IOException {
 		FileInputStream fileInputStream = new FileInputStream(path);
 		DataInputStream inputStream = new DataInputStream(fileInputStream);
-		inputStream.skipBytes(13);
+		byte[] header = {83, 75, 68, 97, 116, 97, 66, 97, 99, 107, 117, 112, 0};
+		int headerIndex = 0;
+		while (headerIndex < header.length) {
+			if (header[headerIndex] != fileInputStream.read()) {
+				throw new IOException("Invalid file");
+			}
+			headerIndex++;
+		}
 		List<String> files = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		byte prev = 0;

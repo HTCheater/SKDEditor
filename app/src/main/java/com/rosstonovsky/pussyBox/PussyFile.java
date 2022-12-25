@@ -182,7 +182,7 @@ public class PussyFile extends File {
 	public File getFile() throws IOException {
 		PussyFile cacheFolder = new PussyFile(PussyUser.getAppDataFolder() + "/cache/");
 		copyTo(cacheFolder);
-		return new File(PussyUser.getAppDataFolder() + "/cache/" + getName());
+		return new File(PussyUser.getProtectedCacheFolder(), getName());
 	}
 
 	/**

@@ -11,6 +11,7 @@ import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -148,7 +149,6 @@ public class CodeEditorAdapter extends BaseAdapter {
 
 		editText.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
-				editText.setFilters(new InputFilter[]{});
 				if (position > text.length - 1) {
 					return;
 				}
@@ -158,7 +158,7 @@ public class CodeEditorAdapter extends BaseAdapter {
 						((CodeEditor) parent).removeMatch(position);
 					}
 					String[] newContent = newString.split("\n");
-					if (newContent.length == 1 && newString.endsWith("\n")) {
+					if (position == text.length - 1 && newContent.length == 1 && newString.endsWith("\n")) {
 						String[] repl = new String[text.length + 1];
 						System.arraycopy(text, 0, repl, 0, text.length);
 						repl[text.length] = "";

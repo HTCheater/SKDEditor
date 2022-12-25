@@ -1,4 +1,4 @@
-package com.chichar.skdeditor.utils.xml;
+package com.chichar.skdeditor.utils;
 
 import org.w3c.dom.Document;
 

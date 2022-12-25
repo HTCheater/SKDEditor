@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rosstonovsky.ABXUtils;
+package com.rosstonovsky.abxUtils;
 
 import static org.xmlpull.v1.XmlPullParser.CDSECT;
 import static org.xmlpull.v1.XmlPullParser.COMMENT;

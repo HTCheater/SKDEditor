@@ -77,7 +77,7 @@ public class FileUtils {
 		try (FileOutputStream outputStream = new FileOutputStream(file)) {
 			outputStream.write(bytes);
 		} catch (IOException e) {
-			Log.d("TAG", "writeBytes: " + e.toString());
+			Log.d("TAG", "writeBytes: " + e);
 		}
 	}
 }

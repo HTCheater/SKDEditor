@@ -1,19 +1,19 @@
 package com.chichar.skdeditor.fragments;
 
 import static com.chichar.skdeditor.activities.MenuActivity.menucontext;
-import static com.rosstonovsky.ABXUtils.ABXWriter.ATTRIBUTE;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_BOOLEAN_FALSE;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_BOOLEAN_TRUE;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_BYTES_BASE64;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_BYTES_HEX;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_DOUBLE;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_FLOAT;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_INT;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_INT_HEX;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_LONG;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_LONG_HEX;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_STRING;
-import static com.rosstonovsky.ABXUtils.ABXWriter.TYPE_STRING_INTERNED;
+import static com.rosstonovsky.abxUtils.ABXWriter.ATTRIBUTE;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_BOOLEAN_FALSE;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_BOOLEAN_TRUE;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_BYTES_BASE64;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_BYTES_HEX;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_DOUBLE;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_FLOAT;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_INT;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_INT_HEX;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_LONG;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_LONG_HEX;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_STRING;
+import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_STRING_INTERNED;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -38,8 +38,8 @@ import com.chichar.skdeditor.utils.FileUtils;
 import com.chichar.skdeditor.utils.XmlUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.rosstonovsky.ABXUtils.ABXReader;
-import com.rosstonovsky.ABXUtils.ABXWriter;
+import com.rosstonovsky.abxUtils.ABXReader;
+import com.rosstonovsky.abxUtils.ABXWriter;
 import com.rosstonovsky.pussyBox.PussyFile;
 import com.rosstonovsky.pussyBox.PussyShell;
 import com.rosstonovsky.pussyBox.PussyUser;
@@ -382,7 +382,7 @@ public class SpooferFragment extends Fragment {
 											.replace("-", "")
 											.substring(0, 16);
 								}
-								abxWriter.attributeInterned(null, attribute.name, attribute.getValueString());
+								abxWriter.attributeInterned(null, attribute.name, a);
 								break;
 							case TYPE_BYTES_HEX:
 								int len = abxReader.mIn.readUnsignedShort();

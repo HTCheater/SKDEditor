@@ -11,7 +11,6 @@ import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -140,8 +139,7 @@ public class CodeEditorAdapter extends BaseAdapter {
 			for (int i = 0; i < highlight.size(); i++) {
 				if (highlight.get(i)[0] == position) {
 					editText.getText().setSpan(new ForegroundColorSpan(Color.parseColor("#FFBB86FC")), highlight.get(i)[1], highlight.get(i)[2], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-				else if (highlight.get(i)[0] > position) {
+				} else if (highlight.get(i)[0] > position) {
 					break;
 				}
 			}

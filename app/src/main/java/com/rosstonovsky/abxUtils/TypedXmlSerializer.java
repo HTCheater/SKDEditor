@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rosstonovsky.ABXUtils;
+package com.rosstonovsky.abxUtils;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -25,7 +25,6 @@ import java.io.IOException;
  * Specialization of {@link XmlSerializer} which adds explicit methods to
  * support consistent and efficient conversion of primitive data types.
  *
- * @hide
  */
 public interface TypedXmlSerializer extends XmlSerializer {
 	/**

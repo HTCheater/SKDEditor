@@ -23,10 +23,8 @@ public class JsonUtils {
 					prettyJSONBuilder.append(charFromUnformattedJson);
 					if (!inQuote) {
 						appendIndentedNewLine(indentLevel, prettyJSONBuilder);
-						break;
-					} else {
-						break;
 					}
+					break;
 				case '[':
 				case '{':
 					prettyJSONBuilder.append(charFromUnformattedJson);

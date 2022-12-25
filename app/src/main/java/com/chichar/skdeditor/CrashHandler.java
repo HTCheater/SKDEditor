@@ -16,13 +16,12 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CrashHandler implements Thread.UncaughtExceptionHandler {
 	private final Thread.UncaughtExceptionHandler defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
-	
+
 	public void uncaughtException(@NonNull Thread t, Throwable e) {
 		Writer stringBuffSync = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringBuffSync);
@@ -34,7 +33,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 			defaultUEH.uncaughtException(t, e);
 		}
 	}
-	
+
 	public void writeToFile(String currentStacktrace) {
 		try {
 			File skdeDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "SKDE");
@@ -47,12 +46,12 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 			}
 			String systemInfo =
 					"============================" +
-					"\nAndroid version: " + Build.VERSION.RELEASE +
-					"\nAndroid API level: " + Build.VERSION.SDK_INT +
-					"\nArchitecture: " + System.getProperty("os.arch") +
-					"\nManufacturer: " + Build.MANUFACTURER +
-					"\nModel: " + Build.MODEL +
-					"\n============================\n";
+							"\nAndroid version: " + Build.VERSION.RELEASE +
+							"\nAndroid API level: " + Build.VERSION.SDK_INT +
+							"\nArchitecture: " + System.getProperty("os.arch") +
+							"\nManufacturer: " + Build.MANUFACTURER +
+							"\nModel: " + Build.MODEL +
+							"\n============================\n";
 			@SuppressLint("SimpleDateFormat")
 			FileWriter fileWriter = new FileWriter(new File(logDir,
 					new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()) +

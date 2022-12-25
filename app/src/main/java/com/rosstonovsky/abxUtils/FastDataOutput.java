@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rosstonovsky.ABXUtils;
+package com.rosstonovsky.abxUtils;
 
 import java.io.Closeable;
 import java.io.DataOutput;
@@ -118,7 +118,7 @@ public class FastDataOutput implements DataOutput, Flushable, Closeable {
 			// We can only safely intern when we have remaining values; if we're
 			// full we at least sent the string value above
 			ref = (short) mStringRefs.size();
-			if (ref < MAX_UNSIGNED_SHORT) {
+			if (mStringRefs.size() < MAX_UNSIGNED_SHORT) {
 				mStringRefs.put(s, ref);
 			}
 		}

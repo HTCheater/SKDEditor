@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rosstonovsky.ABXUtils;
-
-import android.util.Log;
+package com.rosstonovsky.abxUtils;
 
 import androidx.annotation.NonNull;
+
 import java.io.Closeable;
 import java.io.DataInput;
 import java.io.EOFException;
@@ -51,6 +50,7 @@ public class FastDataInput implements DataInput, Closeable {
 		mBuffer = new byte[bufferSize];
 		mBufferCap = mBuffer.length;
 	}
+
 	/**
 	 * Release a {@link FastDataInput} to potentially be recycled. You must not
 	 * interact with the object after releasing it.
@@ -61,6 +61,7 @@ public class FastDataInput implements DataInput, Closeable {
 		mBufferLim = 0;
 		mStringRefCount = 0;
 	}
+
 	/**
 	 * Re-initializes the object for the new input.
 	 */
@@ -70,6 +71,7 @@ public class FastDataInput implements DataInput, Closeable {
 		mBufferLim = 0;
 		mStringRefCount = 0;
 	}
+
 	private void fill(int need) throws IOException {
 		final int remain = mBufferLim - mBufferPos;
 		System.arraycopy(mBuffer, mBufferPos, mBuffer, 0, remain);
@@ -86,15 +88,18 @@ public class FastDataInput implements DataInput, Closeable {
 			}
 		}
 	}
+
 	@Override
 	public void close() throws IOException {
 		mIn.close();
 		release();
 	}
+
 	@Override
 	public void readFully(byte[] b) throws IOException {
 		readFully(b, 0, b.length);
 	}
+
 	@Override
 	public void readFully(byte[] b, int off, int len) throws IOException {
 		// Attempt to read directly from buffer space if there's enough room,
@@ -120,6 +125,7 @@ public class FastDataInput implements DataInput, Closeable {
 			}
 		}
 	}
+
 	@Override
 	public String readUTF() throws IOException {
 		final int len = readUnsignedShort();
@@ -127,6 +133,7 @@ public class FastDataInput implements DataInput, Closeable {
 		readFully(tmp);
 		return new String(tmp);
 	}
+
 	/**
 	 * Read a {@link String} value with the additional signal that the given
 	 * value is a candidate for being canonicalized, similar to
@@ -135,9 +142,9 @@ public class FastDataInput implements DataInput, Closeable {
 	 * Canonicalization is implemented by writing each unique string value once
 	 * the first time it appears, and then writing a lightweight {@code short}
 	 * reference when that string is written again in the future.
-	 *
 	 */
-	public @NonNull String readInternedUTF() throws IOException {
+	public @NonNull
+	String readInternedUTF() throws IOException {
 		final int ref = readUnsignedShort();
 		if (ref == MAX_UNSIGNED_SHORT) {
 			final String s = readUTF();
@@ -155,10 +162,12 @@ public class FastDataInput implements DataInput, Closeable {
 			return mStringRefs[ref];
 		}
 	}
+
 	@Override
 	public boolean readBoolean() throws IOException {
 		return readByte() != 0;
 	}
+
 	/**
 	 * Returns the same decoded value as {@link #readByte()} but without
 	 * actually consuming the underlying data.
@@ -167,63 +176,74 @@ public class FastDataInput implements DataInput, Closeable {
 		if (mBufferLim - mBufferPos < 1) fill(1);
 		return mBuffer[mBufferPos];
 	}
+
 	@Override
 	public byte readByte() throws IOException {
 		if (mBufferLim - mBufferPos < 1) fill(1);
 		return mBuffer[mBufferPos++];
 	}
+
 	@Override
 	public int readUnsignedByte() throws IOException {
 		return Byte.toUnsignedInt(readByte());
 	}
+
 	@Override
 	public short readShort() throws IOException {
 		if (mBufferLim - mBufferPos < 2) fill(2);
-		return (short) (((mBuffer[mBufferPos++] & 0xff) <<  8) |
-				((mBuffer[mBufferPos++] & 0xff) <<  0));
+		return (short) (((mBuffer[mBufferPos++] & 0xff) << 8) |
+				((mBuffer[mBufferPos++] & 0xff) << 0));
 	}
+
 	@Override
 	public int readUnsignedShort() throws IOException {
 		return Short.toUnsignedInt((short) readShort());
 	}
+
 	@Override
 	public char readChar() throws IOException {
 		return (char) readShort();
 	}
+
 	@Override
 	public int readInt() throws IOException {
 		if (mBufferLim - mBufferPos < 4) fill(4);
 		return (((mBuffer[mBufferPos++] & 0xff) << 24) |
 				((mBuffer[mBufferPos++] & 0xff) << 16) |
-				((mBuffer[mBufferPos++] & 0xff) <<  8) |
-				((mBuffer[mBufferPos++] & 0xff) <<  0));
+				((mBuffer[mBufferPos++] & 0xff) << 8) |
+				((mBuffer[mBufferPos++] & 0xff) << 0));
 	}
+
 	@Override
 	public long readLong() throws IOException {
 		if (mBufferLim - mBufferPos < 8) fill(8);
 		int h = ((mBuffer[mBufferPos++] & 0xff) << 24) |
 				((mBuffer[mBufferPos++] & 0xff) << 16) |
-				((mBuffer[mBufferPos++] & 0xff) <<  8) |
-				((mBuffer[mBufferPos++] & 0xff) <<  0);
+				((mBuffer[mBufferPos++] & 0xff) << 8) |
+				((mBuffer[mBufferPos++] & 0xff) << 0);
 		int l = ((mBuffer[mBufferPos++] & 0xff) << 24) |
 				((mBuffer[mBufferPos++] & 0xff) << 16) |
-				((mBuffer[mBufferPos++] & 0xff) <<  8) |
-				((mBuffer[mBufferPos++] & 0xff) <<  0);
+				((mBuffer[mBufferPos++] & 0xff) << 8) |
+				((mBuffer[mBufferPos++] & 0xff) << 0);
 		return (((long) h) << 32L) | ((long) l) & 0xffffffffL;
 	}
+
 	@Override
 	public float readFloat() throws IOException {
 		return Float.intBitsToFloat(readInt());
 	}
+
 	@Override
 	public double readDouble() throws IOException {
 		return Double.longBitsToDouble(readLong());
 	}
+
 	@Override
 	public int skipBytes(int n) {
 		// Callers should read data piecemeal
 		throw new UnsupportedOperationException();
 	}
+
 	@Override
 	public String readLine() {
 		// Callers should read data piecemeal

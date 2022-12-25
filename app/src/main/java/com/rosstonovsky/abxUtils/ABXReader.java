@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class ABXReader implements TypedXmlPullParser {
+
 	public FastDataInput mIn;
 	private int mCurrentToken = START_DOCUMENT;
 	private int mCurrentDepth = 0;

@@ -50,7 +50,7 @@ public class ExplorerFragment extends Fragment {
 		explorer = view.findViewById(R.id.explorer);
 		explorerContext = requireContext();
 
-		PussyFile skDir = new PussyFile(PussyUser.getDataFolder() + "/com.ChillyRoom.DungeonShooter");
+		PussyFile skDir = new PussyFile(PussyUser.getDataFolder() + "/" + Const.pkg);
 
 		Log.d("TAG", "onCreateView: test ");
 		if (skDir.exists()) {
@@ -110,7 +110,7 @@ public class ExplorerFragment extends Fragment {
 
 		assert !name.equals("") : "Failed to get name";
 
-		if (!(name.equals("com.ChillyRoom.DungeonShooter"))) {
+		if (!(name.equals(Const.pkg))) {
 			explorerFiles.add(new ExplorerItem(parent));
 		}
 		ArrayList<String> gameFiles = new ArrayList<>();

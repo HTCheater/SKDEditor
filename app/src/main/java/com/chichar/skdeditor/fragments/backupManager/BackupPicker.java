@@ -282,7 +282,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 	}
 
 	private void restoreBackup(ArrayList<String> checkedFiles, HashMap<String, Byte[]> backup) throws IOException {
-		new PussyShell().cmd("." + PussyUser.getAppFilesFolder() + "/bin/busybox killall com.ChillyRoom.DungeonShooter").exec();
+		new PussyShell().cmd("." + PussyUser.getAppFilesFolder() + "/bin/busybox killall " + Const.pkg).exec();
 		for (String checkedFile : checkedFiles) {
 			Log.d("TAG", "restoreBackup: " + checkedFile);
 		}

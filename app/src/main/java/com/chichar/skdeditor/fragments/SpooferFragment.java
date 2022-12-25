@@ -205,7 +205,7 @@ public class SpooferFragment extends Fragment {
 					while (eventType != XmlPullParser.END_DOCUMENT) {
 						if (eventType == XmlPullParser.END_TAG) {
 							if (abxReader.getAttributeValue("package") != null &&
-									abxReader.getAttributeValue("package").equals("com.google.android.gms")) {
+									abxReader.getAttributeValue("package").equals(Const.pkg)) {
 								androidId = abxReader.getAttributeValue("value");
 								defAndroidId = abxReader.getAttributeValue("defaultValue");
 								break;
@@ -229,7 +229,8 @@ public class SpooferFragment extends Fragment {
 					int eventType = parser.getEventType();
 					while (eventType != XmlPullParser.END_DOCUMENT) {
 						if (eventType == XmlPullParser.END_TAG) {
-							if (parser.getAttributeValue(null, "package") != null && parser.getAttributeValue(null, "package").equals("com.ChillyRoom.DungeonShooter")) {
+							if (parser.getAttributeValue(null, "package") != null &&
+									parser.getAttributeValue(null, "package").equals(Const.pkg)) {
 								androidId = parser.getAttributeValue(null, "value");
 								break;
 							}
@@ -518,7 +519,7 @@ public class SpooferFragment extends Fragment {
 			NodeList packages = document.getElementsByTagName("setting");
 			for (int index = 0; index < packages.getLength(); index++) {
 				String packageName = packages.item(index).getAttributes().getNamedItem("package").getNodeValue();
-				if (packageName.equals("com.ChillyRoom.DungeonShooter")) {
+				if (packageName.equals(Const.pkg)) {
 					UUID uuid = UUID.randomUUID();
 					String randomId = uuid.toString().replace("-", "").substring(0, 16);
 					packages.item(index).getAttributes().getNamedItem("value").setNodeValue(randomId);

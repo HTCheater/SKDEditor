@@ -25,13 +25,6 @@
 		<item name="actionBarStyle">@style/Theme.SKDEditor.ActionBarStyle</item>
 	</style>
 
-	<style name="Theme.SKDEditor.AppBarOverlay" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-	<style name="Theme.SKDEditor.NoActionBar" parent="@style/Theme.SKDEditor">
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-	</style>
-
 	<style name="Theme.SKDEditor.ActionBarStyle" parent="Widget.AppCompat.ActionBar">
 		<item name="android:titleTextStyle">@style/Theme.SKDEditor.ActionBarStyle.TitleStyle</item>
 		<item name="titleTextStyle">@style/Theme.SKDEditor.ActionBarStyle.TitleStyle</item>
@@ -41,8 +34,6 @@
 		<item name="android:textSize">30dp</item>
 		<item name="android:textStyle">bold</item>
 	</style>
-
-	<style name="Theme.SKEditor.PopupOverlay" parent="@style/ThemeOverlay.AppCompat.Light" />
 
 	<style name="AlertDialogCustom" parent="@style/Theme.AppCompat.Dialog.Alert">
 		<item name="android:windowNoTitle">false</item>
@@ -82,11 +73,4 @@
 		parent="Widget.Design.BottomSheet.Modal">
 		<item name="android:background">@drawable/rounded_dialog</item>
 	</style>
-
-	<style name="textStyle">
-		<item name="android:textSize">14sp</item>
-		<item name="paddingStart">30dp</item>
-	</style>
-
-
 </resources>

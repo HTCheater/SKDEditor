@@ -108,8 +108,6 @@ public final class ABXReader implements TypedXmlPullParser {
 					Log.d("TAG", "next: " + mCurrentText);
 					// Per interface docs, empty text regions are skipped
 					if (mCurrentText != null && mCurrentText.length() != 0) {
-						continue;
-					} else {
 						return TEXT;
 					}
 			}

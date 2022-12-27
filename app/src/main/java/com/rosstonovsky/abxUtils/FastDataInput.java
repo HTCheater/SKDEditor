@@ -192,12 +192,12 @@ public class FastDataInput implements DataInput, Closeable {
 	public short readShort() throws IOException {
 		if (mBufferLim - mBufferPos < 2) fill(2);
 		return (short) (((mBuffer[mBufferPos++] & 0xff) << 8) |
-				((mBuffer[mBufferPos++] & 0xff) << 0));
+				((mBuffer[mBufferPos++] & 0xff)));
 	}
 
 	@Override
 	public int readUnsignedShort() throws IOException {
-		return Short.toUnsignedInt((short) readShort());
+		return Short.toUnsignedInt(readShort());
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class FastDataInput implements DataInput, Closeable {
 		return (((mBuffer[mBufferPos++] & 0xff) << 24) |
 				((mBuffer[mBufferPos++] & 0xff) << 16) |
 				((mBuffer[mBufferPos++] & 0xff) << 8) |
-				((mBuffer[mBufferPos++] & 0xff) << 0));
+				((mBuffer[mBufferPos++] & 0xff)));
 	}
 
 	@Override
@@ -220,11 +220,11 @@ public class FastDataInput implements DataInput, Closeable {
 		int h = ((mBuffer[mBufferPos++] & 0xff) << 24) |
 				((mBuffer[mBufferPos++] & 0xff) << 16) |
 				((mBuffer[mBufferPos++] & 0xff) << 8) |
-				((mBuffer[mBufferPos++] & 0xff) << 0);
+				((mBuffer[mBufferPos++] & 0xff));
 		int l = ((mBuffer[mBufferPos++] & 0xff) << 24) |
 				((mBuffer[mBufferPos++] & 0xff) << 16) |
 				((mBuffer[mBufferPos++] & 0xff) << 8) |
-				((mBuffer[mBufferPos++] & 0xff) << 0);
+				((mBuffer[mBufferPos++] & 0xff));
 		return (((long) h) << 32L) | ((long) l) & 0xffffffffL;
 	}
 

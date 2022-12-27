@@ -132,14 +132,14 @@ public class FastDataOutput implements DataOutput, Flushable, Closeable {
 	@Override
 	public void writeByte(int v) throws IOException {
 		if (mBufferCap - mBufferPos < 1) drain();
-		mBuffer[mBufferPos++] = (byte) ((v >> 0) & 0xff);
+		mBuffer[mBufferPos++] = (byte) ((v) & 0xff);
 	}
 
 	@Override
 	public void writeShort(int v) throws IOException {
 		if (mBufferCap - mBufferPos < 2) drain();
 		mBuffer[mBufferPos++] = (byte) ((v >> 8) & 0xff);
-		mBuffer[mBufferPos++] = (byte) ((v >> 0) & 0xff);
+		mBuffer[mBufferPos++] = (byte) ((v) & 0xff);
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class FastDataOutput implements DataOutput, Flushable, Closeable {
 		mBuffer[mBufferPos++] = (byte) ((v >> 24) & 0xff);
 		mBuffer[mBufferPos++] = (byte) ((v >> 16) & 0xff);
 		mBuffer[mBufferPos++] = (byte) ((v >> 8) & 0xff);
-		mBuffer[mBufferPos++] = (byte) ((v >> 0) & 0xff);
+		mBuffer[mBufferPos++] = (byte) ((v) & 0xff);
 	}
 
 	@Override
@@ -163,12 +163,12 @@ public class FastDataOutput implements DataOutput, Flushable, Closeable {
 		mBuffer[mBufferPos++] = (byte) ((i >> 24) & 0xff);
 		mBuffer[mBufferPos++] = (byte) ((i >> 16) & 0xff);
 		mBuffer[mBufferPos++] = (byte) ((i >> 8) & 0xff);
-		mBuffer[mBufferPos++] = (byte) ((i >> 0) & 0xff);
+		mBuffer[mBufferPos++] = (byte) ((i) & 0xff);
 		i = (int) v;
 		mBuffer[mBufferPos++] = (byte) ((i >> 24) & 0xff);
 		mBuffer[mBufferPos++] = (byte) ((i >> 16) & 0xff);
 		mBuffer[mBufferPos++] = (byte) ((i >> 8) & 0xff);
-		mBuffer[mBufferPos++] = (byte) ((i >> 0) & 0xff);
+		mBuffer[mBufferPos++] = (byte) ((i) & 0xff);
 	}
 
 	@Override

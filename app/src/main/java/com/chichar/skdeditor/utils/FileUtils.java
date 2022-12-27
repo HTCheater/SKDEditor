@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 
 public class FileUtils {
 	
-	public String readFile(String path, Charset charset) {
+	public static String readFile(String path, Charset charset) {
 		String everything = "";
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(
 				new FileInputStream(path), String.valueOf(charset)))) {
@@ -35,7 +35,7 @@ public class FileUtils {
 		return everything;
 	}
 	
-	public void writeFile(String path, String text, Charset charset) {
+	public static void writeFile(String path, String text, Charset charset) {
 		try (OutputStreamWriter writer =
 				     new OutputStreamWriter(new FileOutputStream(path), charset)) {
 			writer.write(text);
@@ -44,14 +44,14 @@ public class FileUtils {
 		}
 	}
 
-	public byte[] readAllBytes(String path) throws IOException {
+	public static byte[] readAllBytes(String path) throws IOException {
 		RandomAccessFile f = new RandomAccessFile(path, "r");
 		byte[] b = new byte[(int)f.length()];
 		f.readFully(b);
 		return b;
 	}
 
-	public void copy(File src, File dst) throws IOException {
+	public static void copy(File src, File dst) throws IOException {
 		try (InputStream in = new FileInputStream(src)) {
 			try (OutputStream out = new FileOutputStream(dst)) {
 				byte[] buf = new byte[1024];
@@ -63,7 +63,7 @@ public class FileUtils {
 		}
 	}
 
-	public void copyStream(InputStream in, OutputStream out) throws IOException {
+	public static void copyStream(InputStream in, OutputStream out) throws IOException {
 		byte[] buffer = new byte[1024];
 		int read;
 		while ((read = in.read(buffer)) != -1) {
@@ -73,7 +73,7 @@ public class FileUtils {
 		out.close();
 	}
 
-	public void writeBytes(File file, byte[] bytes) {
+	public static void writeBytes(File file, byte[] bytes) {
 		try (FileOutputStream outputStream = new FileOutputStream(file)) {
 			outputStream.write(bytes);
 		} catch (IOException e) {

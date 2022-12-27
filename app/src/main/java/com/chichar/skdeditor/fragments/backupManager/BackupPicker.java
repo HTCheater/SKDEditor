@@ -324,7 +324,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 
 		for (String s : checkedFiles) {
 			PussyFile pussyFile = new PussyFile(Const.gameFilesPaths.get(s));
-			byte[] bytes = new FileUtils().readAllBytes(pussyFile.getFile().getAbsolutePath());
+			byte[] bytes = FileUtils.readAllBytes(pussyFile.getFile().getAbsolutePath());
 
 			//remove any account information to prevent account id leak
 			if (Objects.equals(s, "com.ChillyRoom.DungeonShooter.v2.playerprefs.xml")) {
@@ -338,14 +338,13 @@ public class BackupPicker extends BottomSheetDialogFragment {
 					String name = strings.item(index).getAttributes().getNamedItem("name").getNodeValue();
 					if (name.equals("cloudSaveId")) {
 						strings.item(index).getParentNode().removeChild(strings.item(index));
-						bytes = new XmlUtils().toString(document).getBytes(StandardCharsets.UTF_8);
+						bytes = XmlUtils.toString(document).getBytes(StandardCharsets.UTF_8);
 					}
 				}
 			}
 			if (Objects.equals(s, "setting.data")) {
-				CryptUtil cryptUtil = new CryptUtil();
 				try {
-					JSONObject settings = new JSONObject(cryptUtil.decrypt(bytes, "setting.data"));
+					JSONObject settings = new JSONObject(CryptUtil.decrypt(bytes, "setting.data"));
 					settings.remove("account2Birthday");
 					settings.remove("account2ChangeCount");
 					settings.remove("account2Name");
@@ -357,18 +356,17 @@ public class BackupPicker extends BottomSheetDialogFragment {
 					settings.remove("account2PurchaseTotal");
 					settings.remove("PlayerBirthNameDatas");
 					settings.remove("HasSolveOldRealNameData2NewData");
-					byte[] enc = cryptUtil.encrypt(settings.toString(), "setting.data");
+					byte[] enc = CryptUtil.encrypt(settings.toString(), "setting.data");
 					bytes = Base64.decode(enc, android.util.Base64.NO_WRAP);
 				} catch (JSONException e) {
 					Toast.makeText(requireContext(), "Failed to remove ID from backup", Toast.LENGTH_SHORT).show();
 				}
 			}
 			if (Objects.equals(s, "statistic.data")) {
-				CryptUtil cryptUtil = new CryptUtil();
-				String statistics = cryptUtil.decrypt(bytes, "statistic.data");
+				String statistics = CryptUtil.decrypt(bytes, "statistic.data");
 				//can't parse statistics_data.data because some symbols in emails aren't escaped
 				statistics = statistics.replaceFirst(",[\\n\\r].*?\"fixGP_Test\":\\d+", "");
-				byte[] enc = cryptUtil.encrypt(statistics, "statistic.data");
+				byte[] enc = CryptUtil.encrypt(statistics, "statistic.data");
 				bytes = Base64.decode(enc, android.util.Base64.NO_WRAP);
 			}
 			if (Objects.equals(s, "item_data.data") ||

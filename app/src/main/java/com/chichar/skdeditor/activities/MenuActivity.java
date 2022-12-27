@@ -124,7 +124,7 @@ public class MenuActivity extends AppCompatActivity {
 						path.append(".skdb");
 						Log.d("TAG", "onCreate: " + path);
 						OutputStream outputStream = new FileOutputStream(path.toString());
-						new FileUtils().copyStream(inputStream, outputStream);
+						FileUtils.copyStream(inputStream, outputStream);
 						Toast.makeText(menucontext, "Successfully imported backup", Toast.LENGTH_SHORT).show();
 					} catch (IOException e) {
 						Toast.makeText(menucontext, "There was an error while importing backup", Toast.LENGTH_SHORT).show();
@@ -267,7 +267,7 @@ public class MenuActivity extends AppCompatActivity {
 			try {
 				setContentView(R.layout.fragment_crash_handler);
 				TextView tv = findViewById(R.id.textView2);
-				tv.setText(new FileUtils().readFile(sdcard + "/SKDE/Logs/latest.log", StandardCharsets.UTF_8));
+				tv.setText(FileUtils.readFile(sdcard + "/SKDE/Logs/latest.log", StandardCharsets.UTF_8));
 				tv.setMovementMethod(new ScrollingMovementMethod());
 			} catch (Exception e) {
 				setContentView(R.layout.fragment_crash_handler);

@@ -62,10 +62,6 @@ public class BackupManagerAdapter extends ArrayAdapter<BackupManagerItem> {
 		notifyDataSetChanged();
 	}
 
-	public ArrayList<BackupManagerItem> getBackups() {
-		return backups;
-	}
-
 	@NonNull
 	@Override
 	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -172,7 +168,7 @@ public class BackupManagerAdapter extends ArrayAdapter<BackupManagerItem> {
 					File localBackup = new File(backups.get(position).getPath());
 					File exportedBackup = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/SKDE/backups/", backups.get(position).getName() + ".skdb");
 					try {
-						new FileUtils().copy(localBackup, exportedBackup);
+						FileUtils.copy(localBackup, exportedBackup);
 					} catch (IOException e) {
 						Toast.makeText(getContext(), "There was an error while exporting backup", Toast.LENGTH_SHORT).show();
 						e.printStackTrace();
@@ -188,7 +184,7 @@ public class BackupManagerAdapter extends ArrayAdapter<BackupManagerItem> {
 						localBackup = new File(getContext().getFilesDir().getAbsolutePath() + "/backups/" + backups.get(position).getName() + "_" + i + ".skdb");
 					}
 					try {
-						new FileUtils().copy(exportedBackup, localBackup);
+						FileUtils.copy(exportedBackup, localBackup);
 					} catch (IOException e) {
 						Toast.makeText(getContext(), "There was an error while importing backup", Toast.LENGTH_SHORT).show();
 						e.printStackTrace();

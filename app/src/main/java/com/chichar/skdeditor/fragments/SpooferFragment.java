@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -166,7 +165,7 @@ public class SpooferFragment extends Fragment {
 			if (pussyPrefs.exists()) {
 				String prefs = "";
 				try {
-					prefs = new FileUtils().readFile(pussyPrefs.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
+					prefs = FileUtils.readFile(pussyPrefs.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
 				} catch (IOException e) {
 					handler.post(() -> Toast.makeText(menucontext, "Failed to read preferences", Toast.LENGTH_SHORT).show());
 				}
@@ -216,11 +215,10 @@ public class SpooferFragment extends Fragment {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				Log.d("TAG", "androidId: " + androidId);
 			} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				try {
 					PussyFile pussyFile = new PussyFile("/data/system/users/" + PussyUser.getId() + "/settings_ssaid.xml");
-					String ssaidXml = new FileUtils().readFile(pussyFile.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
+					String ssaidXml = FileUtils.readFile(pussyFile.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
 					XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 					factory.setNamespaceAware(true);
 					XmlPullParser parser = factory.newPullParser();
@@ -243,7 +241,7 @@ public class SpooferFragment extends Fragment {
 			} else {
 				try {
 					PussyFile pussyFile = new PussyFile("/data/system/users/" + PussyUser.getId() + "/settings_secure.xml");
-					String androidIdXml = new FileUtils().readFile(pussyFile.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
+					String androidIdXml = FileUtils.readFile(pussyFile.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
 					XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 					factory.setNamespaceAware(true);
 					XmlPullParser parser = factory.newPullParser();
@@ -280,7 +278,7 @@ public class SpooferFragment extends Fragment {
 	private void clearAccount() throws ParserConfigurationException, IOException, SAXException, JSONException {
 		PussyFile pussyPrefs = new PussyFile(Const.gameFilesPaths.get("com.ChillyRoom.DungeonShooter.v2.playerprefs.xml"));
 		File prefsFile = pussyPrefs.getFile();
-		String prefs = new FileUtils().readFile(prefsFile.getAbsolutePath(), StandardCharsets.UTF_8);
+		String prefs = FileUtils.readFile(prefsFile.getAbsolutePath(), StandardCharsets.UTF_8);
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document document = builder.parse(new InputSource(new StringReader(prefs)));
@@ -289,17 +287,16 @@ public class SpooferFragment extends Fragment {
 			String name = strings.item(index).getAttributes().getNamedItem("name").getNodeValue();
 			if (name.equals("cloudSaveId")) {
 				strings.item(index).getParentNode().removeChild(strings.item(index));
-				prefs = new XmlUtils().toString(document);
+				prefs = XmlUtils.toString(document);
 			}
 		}
-		new FileUtils().writeFile(prefsFile.getAbsolutePath(), prefs, StandardCharsets.UTF_8);
+		FileUtils.writeFile(prefsFile.getAbsolutePath(), prefs, StandardCharsets.UTF_8);
 		pussyPrefs.commit();
 
 		PussyFile pussySettings = new PussyFile(Const.gameFilesPaths.get("setting.data"));
 		File settingsFile = pussySettings.getFile();
-		byte[] settingsBytes = new FileUtils().readAllBytes(settingsFile.getAbsolutePath());
-		CryptUtil cryptUtil = new CryptUtil();
-		JSONObject settings = new JSONObject(cryptUtil.decrypt(settingsBytes, "setting.data"));
+		byte[] settingsBytes = FileUtils.readAllBytes(settingsFile.getAbsolutePath());
+		JSONObject settings = new JSONObject(CryptUtil.decrypt(settingsBytes, "setting.data"));
 		settings.remove("account2Birthday");
 		settings.remove("account2ChangeCount");
 		settings.remove("account2Name");
@@ -311,18 +308,18 @@ public class SpooferFragment extends Fragment {
 		settings.remove("account2PurchaseTotal");
 		settings.remove("PlayerBirthNameDatas");
 		settings.remove("HasSolveOldRealNameData2NewData");
-		byte[] enc = cryptUtil.encrypt(settings.toString(), "setting.data");
-		new FileUtils().writeBytes(settingsFile, enc);
+		byte[] enc = CryptUtil.encrypt(settings.toString(), "setting.data");
+		FileUtils.writeBytes(settingsFile, enc);
 		pussySettings.commit();
 
 		PussyFile pussyStatistics = new PussyFile(Const.gameFilesPaths.get("statistic.data"));
 		File statisticsFile = pussyStatistics.getFile();
-		byte[] statisticsBytes = new FileUtils().readAllBytes(statisticsFile.getAbsolutePath());
-		String statistics = cryptUtil.decrypt(statisticsBytes, "statistic.data");
+		byte[] statisticsBytes = FileUtils.readAllBytes(statisticsFile.getAbsolutePath());
+		String statistics = CryptUtil.decrypt(statisticsBytes, "statistic.data");
 		//can't parse statistics_data.data because some symbols in emails aren't escaped
 		statistics = statistics.replaceFirst(",[\\n\\r].*?\"fixGP_Test\":\\d+", "");
-		enc = cryptUtil.encrypt(statistics, "statistic.data");
-		new FileUtils().writeBytes(statisticsFile, enc);
+		enc = CryptUtil.encrypt(statistics, "statistic.data");
+		FileUtils.writeBytes(statisticsFile, enc);
 		pussyStatistics.commit();
 	}
 
@@ -365,7 +362,6 @@ public class SpooferFragment extends Fragment {
 								String a = attribute.valueString;
 								if (Objects.equals(a, androidId) ||
 										Objects.equals(a, defAndroidId)) {
-									Log.d("TAG", "GOT IT");
 									a = UUID.randomUUID().toString()
 											.replace("-", "")
 											.substring(0, 16);
@@ -374,7 +370,6 @@ public class SpooferFragment extends Fragment {
 								break;
 							case TYPE_STRING_INTERNED:
 								attribute.valueString = abxReader.mIn.readInternedUTF();
-								Log.d("TAG", "GOT IT");
 								a = attribute.getValueString();
 								if (Objects.equals(a, androidId) ||
 										Objects.equals(a, defAndroidId)) {
@@ -512,7 +507,7 @@ public class SpooferFragment extends Fragment {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			PussyFile pussySSAID = new PussyFile("/data/system/users/" + PussyUser.getId() + "/settings_ssaid.xml");
 			File fileSSAID = pussySSAID.getFile();
-			String ssaidXml = new FileUtils().readFile(fileSSAID.getAbsolutePath(), StandardCharsets.UTF_8);
+			String ssaidXml = FileUtils.readFile(fileSSAID.getAbsolutePath(), StandardCharsets.UTF_8);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(new InputSource(new StringReader(ssaidXml)));
@@ -524,7 +519,7 @@ public class SpooferFragment extends Fragment {
 					String randomId = uuid.toString().replace("-", "").substring(0, 16);
 					packages.item(index).getAttributes().getNamedItem("value").setNodeValue(randomId);
 					packages.item(index).getAttributes().getNamedItem("defaultValue").setNodeValue(randomId);
-					new FileUtils().writeFile(fileSSAID.getAbsolutePath(), new XmlUtils().toString(document), StandardCharsets.UTF_8);
+					FileUtils.writeFile(fileSSAID.getAbsolutePath(), XmlUtils.toString(document), StandardCharsets.UTF_8);
 					pussySSAID.commit();
 					pussySSAID.setProperties(new int[]{600, 1000, 1000});
 					return;
@@ -534,7 +529,7 @@ public class SpooferFragment extends Fragment {
 
 		PussyFile pussySecure = new PussyFile("/data/system/users/" + PussyUser.getId() + "/settings_secure.xml");
 		File fileSecure = pussySecure.getFile();
-		String androidIdXml = new FileUtils().readFile(fileSecure.getAbsolutePath(), StandardCharsets.UTF_8);
+		String androidIdXml = FileUtils.readFile(fileSecure.getAbsolutePath(), StandardCharsets.UTF_8);
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document document = builder.parse(new InputSource(new StringReader(androidIdXml)));
@@ -547,7 +542,7 @@ public class SpooferFragment extends Fragment {
 					UUID uuid = UUID.randomUUID();
 					String randomId = uuid.toString().replace("-", "").substring(0, 16);
 					packages.item(index).getAttributes().getNamedItem("value").setNodeValue(randomId);
-					new FileUtils().writeFile(fileSecure.getAbsolutePath(), new XmlUtils().toString(document), StandardCharsets.UTF_8);
+					FileUtils.writeFile(fileSecure.getAbsolutePath(), XmlUtils.toString(document), StandardCharsets.UTF_8);
 					pussySecure.commit();
 					pussySecure.setProperties(new int[]{600, 1000, 1000});
 					return;

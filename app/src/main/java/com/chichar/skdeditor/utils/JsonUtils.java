@@ -3,7 +3,8 @@ package com.chichar.skdeditor.utils;
 import java.util.regex.Pattern;
 
 public class JsonUtils {
-	public String prettyPrintJSON(String unformattedJsonString) {
+
+	public static String prettyPrintJSON(String unformattedJsonString) {
 		StringBuilder prettyJSONBuilder = new StringBuilder();
 		int indentLevel = 0;
 		boolean inQuote = false;
@@ -45,14 +46,14 @@ public class JsonUtils {
 		return prettyJSONBuilder.toString();
 	}
 	
-	private void appendIndentedNewLine(int indentLevel, StringBuilder stringBuilder) {
+	private static void appendIndentedNewLine(int indentLevel, StringBuilder stringBuilder) {
 		stringBuilder.append("\n");
 		for (int i = 0; i < indentLevel; i++) {
 			stringBuilder.append("  ");
 		}
 	}
 	
-	public String minify(String json) {
+	public static String minify(String json) {
 		return Pattern.compile("[\\n\\r]\\s+", 8).matcher(json).replaceAll("");
 	}
 }

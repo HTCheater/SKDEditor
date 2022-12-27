@@ -12,7 +12,7 @@ import javax.xml.transform.stream.StreamResult;
 
 public class XmlUtils {
 
-	public String toString(Document doc) {
+	public static String toString(Document doc) {
 		try {
 			StringWriter sw = new StringWriter();
 			TransformerFactory tf = TransformerFactory.newInstance();

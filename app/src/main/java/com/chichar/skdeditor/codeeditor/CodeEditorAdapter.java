@@ -135,14 +135,17 @@ public class CodeEditorAdapter extends BaseAdapter {
 		editText.setFilters(new InputFilter[]{});
 		editText.setText(localText);
 
-		if (!highlight.isEmpty() && !isSelected) {
-			for (int i = 0; i < highlight.size(); i++) {
-				if (highlight.get(i)[0] == position) {
-					editText.getText().setSpan(new ForegroundColorSpan(Color.parseColor("#FFBB86FC")), highlight.get(i)[1], highlight.get(i)[2], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				} else if (highlight.get(i)[0] > position) {
-					break;
+		try {
+			if (!highlight.isEmpty() && !isSelected) {
+				for (int i = 0; i < highlight.size(); i++) {
+					if (highlight.get(i)[0] == position) {
+						editText.getText().setSpan(new ForegroundColorSpan(Color.parseColor("#FFBB86FC")), highlight.get(i)[1], highlight.get(i)[2], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					} else if (highlight.get(i)[0] > position) {
+						break;
+					}
 				}
 			}
+		} catch (Exception ignored) {
 		}
 
 		editText.setOnFocusChangeListener((view, hasFocus) -> {
@@ -225,6 +228,14 @@ public class CodeEditorAdapter extends BaseAdapter {
 			}
 			return false;
 		});
+		if (position == text.length - 1) {
+			//leave space for navigation and extra 5 dp
+			float scale = context.getResources().getDisplayMetrics().density;
+			int px = (int) (45 * scale + 0.5f);
+			currentItemView.setPadding(0, 0, 0, px);
+			return currentItemView;
+		}
+		currentItemView.setPadding(0, 0, 0, 0);
 		return currentItemView;
 	}
 

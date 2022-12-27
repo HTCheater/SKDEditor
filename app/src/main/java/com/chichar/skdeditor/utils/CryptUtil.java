@@ -23,12 +23,12 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class CryptUtil {
 
-	public byte[] encrypt(String data, String fileName) {
+	public static byte[] encrypt(String data, String fileName) {
 		byte[] result = data.getBytes(StandardCharsets.UTF_8);
 		if (fileName.equals("battles.data") ||
 				fileName.equals("battle.data") ||
 				Const.encryptedJsonGameFiles.contains(fileName)) {
-			result = new JsonUtils().minify(data).getBytes(StandardCharsets.UTF_8);
+			result = JsonUtils.minify(data).getBytes(StandardCharsets.UTF_8);
 		}
 		if (fileName.contains("item_data") ||
 				fileName.equals("task.data") ||
@@ -45,7 +45,7 @@ public class CryptUtil {
 		return result;
 	}
 
-	public String decrypt(byte[] data, String fileName) {
+	public static String decrypt(byte[] data, String fileName) {
 		Log.d("TAG", fileName);
 		String result = new String(data);
 		if (fileName.contains(".xml")) {
@@ -89,13 +89,12 @@ public class CryptUtil {
 		if (fileName.equals("battles.data") ||
 				fileName.equals("battle.data") ||
 				Const.encryptedJsonGameFiles.contains(fileName)) {
-			JsonUtils jsonUtils = new JsonUtils();
-			result = jsonUtils.prettyPrintJSON(jsonUtils.minify(result));
+			result = JsonUtils.prettyPrintJSON(JsonUtils.minify(result));
 		}
 		return result;
 	}
 
-	private byte[] xor(byte[] data) {
+	private static byte[] xor(byte[] data) {
 		byte[] key = new byte[15];
 		key[0] = 115;
 		key[1] = 108;
@@ -122,7 +121,7 @@ public class CryptUtil {
 		return output;
 	}
 
-	private String decryptDES(byte[] text, byte[] key) {
+	private static String decryptDES(byte[] text, byte[] key) {
 		byte[] iv = new byte[8];
 		iv[0] = 0x41;
 		iv[1] = 0x68;
@@ -157,7 +156,7 @@ public class CryptUtil {
 		return new String(resultBytes);
 	}
 
-	private byte[] encryptDES(String text, byte[] key) {
+	private static byte[] encryptDES(String text, byte[] key) {
 		byte[] iv = new byte[8];
 		iv[0] = 0x41;
 		iv[1] = 0x68;

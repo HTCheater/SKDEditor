@@ -72,7 +72,7 @@ public class EditorActivity extends AppCompatActivity {
 			Toast.makeText(this, "Unable to open file", Toast.LENGTH_SHORT).show();
 			finish();
 		}
-		new FileUtils().readFile(file.getAbsolutePath(), StandardCharsets.UTF_8);
+		FileUtils.readFile(file.getAbsolutePath(), StandardCharsets.UTF_8);
 		lastModified = file.lastModified();
 
 		ImageButton expandFind = findViewById(R.id.expandFind);
@@ -167,12 +167,11 @@ public class EditorActivity extends AppCompatActivity {
 		Handler handler = new Handler(Looper.myLooper());
 		executor.execute(() -> {
 			try {
-				CryptUtil cryptUtil = new CryptUtil();
-				byte[] data = new FileUtils().readAllBytes(file.getAbsolutePath());
+				byte[] data = FileUtils.readAllBytes(file.getAbsolutePath());
 				if (!decrypted) {
-					data = cryptUtil.decrypt(data, file.getName()).getBytes(StandardCharsets.UTF_8);
+					data = CryptUtil.decrypt(data, file.getName()).getBytes(StandardCharsets.UTF_8);
 					decrypted = true;
-					new FileUtils().writeBytes(file, data);
+					FileUtils.writeBytes(file, data);
 				}
 				byte[] finalData = data;
 				handler.post(() -> {
@@ -201,20 +200,18 @@ public class EditorActivity extends AppCompatActivity {
 		Handler handler = new Handler(Looper.myLooper());
 		String text = ((CodeEditor) findViewById(R.id.editor)).getText();
 		executor.execute(() -> {
-			CryptUtil cryptUtil = new CryptUtil();
-			FileUtils fileUtils = new FileUtils();
-			fileUtils.writeBytes(file, cryptUtil.encrypt(text, file.getName()));
+			FileUtils.writeBytes(file, CryptUtil.encrypt(text, file.getName()));
 			try {
 				pussyFile.commit();
 			} catch (IOException e) {
 				handler.post(() -> {
 					Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
-					fileUtils.writeFile(file.getAbsolutePath(), text, StandardCharsets.UTF_8);
+					FileUtils.writeFile(file.getAbsolutePath(), text, StandardCharsets.UTF_8);
 					findViewById(R.id.loading).setVisibility(GONE);
 				});
 				return;
 			}
-			fileUtils.writeFile(file.getAbsolutePath(), ((CodeEditor) findViewById(R.id.editor)).getText(), StandardCharsets.UTF_8);
+			FileUtils.writeFile(file.getAbsolutePath(), ((CodeEditor) findViewById(R.id.editor)).getText(), StandardCharsets.UTF_8);
 			handler.post(() -> {
 				Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
 				findViewById(R.id.loading).setVisibility(GONE);

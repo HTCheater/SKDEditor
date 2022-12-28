@@ -3,7 +3,6 @@ package com.rosstonovsky.pussyBox;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -54,7 +53,6 @@ public class PussyUser {
 				}
 			}
 		}
-		Log.d("TAG", "Current user: " + id);
 		if (id == -1) {
 			Toast.makeText(context, "Failed to get user id, using default", Toast.LENGTH_SHORT).show();
 			id = 0;

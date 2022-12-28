@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -122,7 +121,6 @@ public class MenuActivity extends AppCompatActivity {
 							path.append("_").append(i);
 						}
 						path.append(".skdb");
-						Log.d("TAG", "onCreate: " + path);
 						OutputStream outputStream = new FileOutputStream(path.toString());
 						FileUtils.copyStream(inputStream, outputStream);
 						Toast.makeText(menucontext, "Successfully imported backup", Toast.LENGTH_SHORT).show();
@@ -183,7 +181,6 @@ public class MenuActivity extends AppCompatActivity {
 			finish();
 		}
 		PussyUser.makeUser(this);
-		Log.d("TAG", "s: ");
 	}
 
 	@SuppressLint({"SetWorldWritable", "SetWorldReadable"})
@@ -296,7 +293,6 @@ public class MenuActivity extends AppCompatActivity {
 					return;
 				}
 				position = tab.getPosition();
-				Log.d("TAG", "onTabSelected: " + position);
 				invalidateOptionsMenu();
 				TextView textView = view.findViewById(R.id.label);
 				ImageView imageView = view.findViewById(R.id.icon);
@@ -353,7 +349,6 @@ public class MenuActivity extends AppCompatActivity {
 			});
 			return true;
 		}
-		Log.d("TAG", "onCreateOptionsMenu: " + position);
 		if (position != 1) {
 			if (menu.size() == 0) {
 				return true;
@@ -495,8 +490,6 @@ public class MenuActivity extends AppCompatActivity {
 		int x = content.getWidth() - dip2px(this, 20);
 		int y = content.getHeight() - dip2px(this, 20);
 		float r = (float) Math.sqrt((x * x) + (y * y));
-
-		Log.d("TAG", "intentMenu: " + x + ", " + y);
 
 		Animator circularReveal = ViewAnimationUtils.createCircularReveal(
 				content,

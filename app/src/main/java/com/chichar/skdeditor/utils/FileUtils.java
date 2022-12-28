@@ -1,7 +1,5 @@
 package com.chichar.skdeditor.utils;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,14 +13,14 @@ import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 
 public class FileUtils {
-	
+
 	public static String readFile(String path, Charset charset) {
 		String everything = "";
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(
 				new FileInputStream(path), String.valueOf(charset)))) {
 			StringBuilder sb = new StringBuilder();
 			String line = br.readLine();
-			
+
 			while (line != null) {
 				sb.append(line);
 				sb.append(System.lineSeparator());
@@ -34,7 +32,7 @@ public class FileUtils {
 		}
 		return everything;
 	}
-	
+
 	public static void writeFile(String path, String text, Charset charset) {
 		try (OutputStreamWriter writer =
 				     new OutputStreamWriter(new FileOutputStream(path), charset)) {
@@ -46,7 +44,7 @@ public class FileUtils {
 
 	public static byte[] readAllBytes(String path) throws IOException {
 		RandomAccessFile f = new RandomAccessFile(path, "r");
-		byte[] b = new byte[(int)f.length()];
+		byte[] b = new byte[(int) f.length()];
 		f.readFully(b);
 		return b;
 	}
@@ -77,7 +75,7 @@ public class FileUtils {
 		try (FileOutputStream outputStream = new FileOutputStream(file)) {
 			outputStream.write(bytes);
 		} catch (IOException e) {
-			Log.d("TAG", "writeBytes: " + e);
+			e.printStackTrace();
 		}
 	}
 }

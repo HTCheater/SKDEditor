@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,7 +84,6 @@ public class BackupManagerFragment extends Fragment {
 					backupPicker.show(requireActivity().getSupportFragmentManager(), null);
 				});
 				for (File backup : backups) {
-					Log.d("TAG", "Detected backup: " + backup.getName());
 					DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.getDefault());
 					backupsList.add(new BackupManagerItem(backup.getAbsolutePath(), backup.getName(), dateFormat.format(new Date(backup.getAbsoluteFile().lastModified()))));
 				}
@@ -144,7 +142,6 @@ public class BackupManagerFragment extends Fragment {
 			File[] dirs = new File(finalPath[0]).listFiles(File::isDirectory);
 			assert fileks != null : "fileks is null";
 			assert dirs != null : "dirs is null";
-			Log.d("TAG", "name: " + new File(finalPath[0]).getName());
 			Arrays.sort(fileks, (file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()));
 			Arrays.sort(dirs, (file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()));
 			List<BackupManagerItem> sortedFiles = new ArrayList<>();
@@ -161,7 +158,6 @@ public class BackupManagerFragment extends Fragment {
 			ListView listView = view.findViewById(R.id.backups);
 			BackupManagerAdapter backupManagerAdapter = (BackupManagerAdapter) listView.getAdapter();
 			backupManagerAdapter.setPath(finalPath[0]);
-			Log.d("TAG", "openInBackupsExplorer: " + backupManagerAdapter.getPath());
 			handler.post(() -> {
 				TextView pathView = view.findViewById(R.id.path);
 				HorizontalScrollView scroll = view.findViewById(R.id.scroll);
@@ -206,7 +202,6 @@ public class BackupManagerFragment extends Fragment {
 					backupPicker.show(requireActivity().getSupportFragmentManager(), null);
 				});
 				for (File backup : backups) {
-					Log.d("TAG", "Detected backup: " + backup.getName());
 					DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.getDefault());
 					backupsList.add(new BackupManagerItem(backup.getAbsolutePath(), backup.getName(), dateFormat.format(new Date(backup.getAbsoluteFile().lastModified()))));
 				}

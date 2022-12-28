@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -226,7 +225,6 @@ public class BackupPicker extends BottomSheetDialogFragment {
 					break;
 				}
 				files.add(sb.toString());
-				Log.d("TAG", "readBackup: " + sb);
 				sb.delete(0, sb.length());
 			}
 			prev = b;
@@ -283,9 +281,6 @@ public class BackupPicker extends BottomSheetDialogFragment {
 
 	private void restoreBackup(ArrayList<String> checkedFiles, HashMap<String, Byte[]> backup) throws IOException {
 		new PussyShell().cmd("." + PussyUser.getAppFilesFolder() + "/bin/busybox killall " + Const.pkg).exec();
-		for (String checkedFile : checkedFiles) {
-			Log.d("TAG", "restoreBackup: " + checkedFile);
-		}
 
 		for (Map.Entry<String, Byte[]> entry : backup.entrySet()) {
 			byte[] bytes = new byte[entry.getValue().length];

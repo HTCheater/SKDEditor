@@ -1,7 +1,6 @@
 package com.chichar.skdeditor.utils;
 
 import android.util.Base64;
-import android.util.Log;
 
 import com.chichar.skdeditor.Const;
 
@@ -46,7 +45,6 @@ public class CryptUtil {
 	}
 
 	public static String decrypt(byte[] data, String fileName) {
-		Log.d("TAG", fileName);
 		String result = new String(data);
 		if (fileName.contains(".xml")) {
 			Pattern attrsRegex = Pattern.compile("(<.*?/>|<.*?</.*?>)");

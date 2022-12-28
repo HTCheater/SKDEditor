@@ -18,7 +18,6 @@ import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_STRING_INTERNED;
 
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -105,7 +104,6 @@ public final class ABXReader implements TypedXmlPullParser {
 					return token;
 				case TEXT:
 					consumeAdditionalText();
-					Log.d("TAG", "next: " + mCurrentText);
 					// Per interface docs, empty text regions are skipped
 					if (mCurrentText != null && mCurrentText.length() != 0) {
 						return TEXT;

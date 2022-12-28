@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +51,6 @@ public class ExplorerFragment extends Fragment {
 
 		PussyFile skDir = new PussyFile(PussyUser.getDataFolder() + "/" + Const.pkg);
 
-		Log.d("TAG", "onCreateView: test ");
 		if (skDir.exists()) {
 			openInExplorer(skDir.getAbsolutePath());
 			return view;
@@ -89,9 +87,6 @@ public class ExplorerFragment extends Fragment {
 			Toast.makeText(explorerContext, "File is too long", Toast.LENGTH_SHORT).show();
 			return;
 		}
-
-		Log.d("TAG", "openInExplorer: " + path);
-		Log.d("curr", "openInExplorer: " + (currentFolder == null));
 
 		if (path.charAt(path.length() - 1) == '/') {
 			path = path.substring(0, path.length() - 1);

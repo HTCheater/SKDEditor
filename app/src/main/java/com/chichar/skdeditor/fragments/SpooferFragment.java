@@ -97,10 +97,7 @@ public class SpooferFragment extends Fragment {
 			executor.execute(() -> {
 				try {
 					clearAccount();
-					handler.post(() -> {
-						readData();
-						accountClear.setEnabled(true);
-					});
+					handler.post(this::readData);
 				} catch (ParserConfigurationException | SAXException e) {
 					handler.post(() -> Toast.makeText(menucontext, "Failed to parse preferences", Toast.LENGTH_SHORT).show());
 				} catch (IOException e) {
@@ -180,6 +177,8 @@ public class SpooferFragment extends Fragment {
 				handler.post(() -> {
 					assert finalAccountId != null;
 					if (!finalAccountId.contains("Failed to")) {
+						requireView().findViewById(R.id.account_clear).setEnabled(true);
+					} else {
 						requireView().findViewById(R.id.account_clear).setEnabled(true);
 					}
 					accountIdTv.setText(finalAccountId);

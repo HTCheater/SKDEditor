@@ -330,12 +330,19 @@ public class BackupPicker extends BottomSheetDialogFragment {
 				Document document = builder.parse(new InputSource(new StringReader(prefs)));
 				NodeList strings = document.getElementsByTagName("string");
 				for (int index = 0; index < strings.getLength(); index++) {
-					String name = strings.item(index).getAttributes().getNamedItem("name").getNodeValue();
-					if (name.equals("cloudSaveId")) {
+					String name = "";
+					if (strings.item(index).getAttributes() != null &&
+							strings.item(index).getAttributes().getNamedItem("name") != null &&
+							strings.item(index).getAttributes().getNamedItem("name").getNodeValue() != null) {
+						name = strings.item(index).getAttributes().getNamedItem("name").getNodeValue();
+					}
+					if (name.equals("cloudSaveId") ||
+							name.equals("account_enter_game_count_today") ||
+							name.equals("accountLoginRecords")) {
 						strings.item(index).getParentNode().removeChild(strings.item(index));
-						bytes = XmlUtils.toString(document).getBytes(StandardCharsets.UTF_8);
 					}
 				}
+				prefs = XmlUtils.toString(document);
 			}
 			if (Objects.equals(s, "setting.data")) {
 				try {

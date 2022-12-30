@@ -34,7 +34,11 @@ import java.util.concurrent.Executors;
 
 public class BackupManagerFragment extends Fragment {
 	@SuppressLint("StaticFieldLeak")
-	private static View view;
+	private static BackupManagerFragment instance;
+
+	public static BackupManagerFragment getInstance() {
+		return instance;
+	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +50,7 @@ public class BackupManagerFragment extends Fragment {
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_backup_manager, container, false);
-		BackupManagerFragment.view = view;
+		BackupManagerFragment.instance = this;
 		TextView pathView = view.findViewById(R.id.path);
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE);
 		pathView.setText("Backups");
@@ -98,7 +102,7 @@ public class BackupManagerFragment extends Fragment {
 	}
 
 	public void browseStorage() {
-		((FloatingActionButton) view.findViewById(R.id.createBackup)).hide();
+		((FloatingActionButton) instance.requireView().findViewById(R.id.createBackup)).hide();
 		hideError();
 		openInExplorer(Environment.getExternalStorageDirectory().getAbsolutePath());
 	}
@@ -110,7 +114,7 @@ public class BackupManagerFragment extends Fragment {
 		executor.execute(() -> {
 			PussyFile currFolder = new PussyFile(path);
 			if (!currFolder.exists()) {
-				Toast.makeText(view.getContext(), "Doesn't exist", Toast.LENGTH_SHORT).show();
+				Toast.makeText(instance.requireContext(), "Doesn't exist", Toast.LENGTH_SHORT).show();
 				return;
 			}
 
@@ -155,12 +159,12 @@ public class BackupManagerFragment extends Fragment {
 			}
 			explorerFiles.addAll(sortedFolders);
 			explorerFiles.addAll(sortedFiles);
-			ListView listView = view.findViewById(R.id.backups);
+			ListView listView = instance.requireView().findViewById(R.id.backups);
 			BackupManagerAdapter backupManagerAdapter = (BackupManagerAdapter) listView.getAdapter();
 			backupManagerAdapter.setPath(finalPath[0]);
 			handler.post(() -> {
-				TextView pathView = view.findViewById(R.id.path);
-				HorizontalScrollView scroll = view.findViewById(R.id.scroll);
+				TextView pathView = instance.requireView().findViewById(R.id.path);
+				HorizontalScrollView scroll = instance.requireView().findViewById(R.id.scroll);
 				pathView.setText(path);
 				ObjectAnimator animator = ObjectAnimator.ofInt(scroll, "scrollX", pathView.getWidth());
 				animator.setDuration(600);
@@ -191,13 +195,13 @@ public class BackupManagerFragment extends Fragment {
 						}
 					}
 			);
-			ListView listView = view.findViewById(R.id.backups);
+			ListView listView = instance.requireView().findViewById(R.id.backups);
 			BackupManagerAdapter backupManagerAdapter = (BackupManagerAdapter) listView.getAdapter();
 			ArrayList<BackupManagerItem> backupsList = new ArrayList<>();
 
 			handler.post(() -> {
-				((FloatingActionButton) view.findViewById(R.id.createBackup)).show();
-				view.findViewById(R.id.createBackup).setOnClickListener(v -> {
+				((FloatingActionButton) instance.requireView().findViewById(R.id.createBackup)).show();
+				instance.requireView().findViewById(R.id.createBackup).setOnClickListener(v -> {
 					BackupPicker backupPicker = new BackupPicker(backupManagerAdapter);
 					backupPicker.show(requireActivity().getSupportFragmentManager(), null);
 				});
@@ -208,7 +212,7 @@ public class BackupManagerFragment extends Fragment {
 				backupManagerAdapter.setBackups(backupsList);
 				backupManagerAdapter.setPath(requireContext().getFilesDir().getAbsolutePath() + "/backups");
 				if (backups.length == 0) {
-					view.findViewById(R.id.error).setVisibility(View.VISIBLE);
+					instance.requireView().findViewById(R.id.error).setVisibility(View.VISIBLE);
 				}
 				requireView().findViewById(R.id.loading).setVisibility(View.GONE);
 			});

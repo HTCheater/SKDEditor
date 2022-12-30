@@ -372,10 +372,9 @@ public class MenuActivity extends AppCompatActivity {
 			menu.getItem(1).setVisible(false);
 			ImageView imageView = new ImageView(this);
 			imageView.setOnClickListener(item -> {
-				BackupManagerFragment backupManagerFragment = (BackupManagerFragment) getSupportFragmentManager().getFragments().get(1);
 				browseStorage = true;
 				invalidateOptionsMenu();
-				backupManagerFragment.browseStorage();
+				BackupManagerFragment.getInstance().browseStorage();
 			});
 			imageView.setImageResource(R.drawable.ic_skdb);
 			imageView.setLayoutParams(layoutParams);

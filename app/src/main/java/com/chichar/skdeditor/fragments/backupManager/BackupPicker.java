@@ -324,7 +324,6 @@ public class BackupPicker extends BottomSheetDialogFragment {
 			//remove any account information to prevent account id leak
 			if (Objects.equals(s, "com.ChillyRoom.DungeonShooter.v2.playerprefs.xml")) {
 				String prefs = new String(bytes);
-
 				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder builder = factory.newDocumentBuilder();
 				Document document = builder.parse(new InputSource(new StringReader(prefs)));

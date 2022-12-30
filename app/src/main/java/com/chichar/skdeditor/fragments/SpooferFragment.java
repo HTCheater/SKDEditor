@@ -132,10 +132,7 @@ public class SpooferFragment extends Fragment {
 					});
 					return;
 				}
-				handler.post(() -> {
-					readData();
-					androidSpoof.setEnabled(true);
-				});
+				handler.post(this::readData);
 			});
 		});
 
@@ -176,11 +173,7 @@ public class SpooferFragment extends Fragment {
 				String finalAccountId = accountId;
 				handler.post(() -> {
 					assert finalAccountId != null;
-					if (!finalAccountId.contains("Failed to")) {
-						requireView().findViewById(R.id.account_clear).setEnabled(true);
-					} else {
-						requireView().findViewById(R.id.account_clear).setEnabled(true);
-					}
+					requireView().findViewById(R.id.account_clear).setEnabled(!finalAccountId.contains("Failed"));
 					accountIdTv.setText(finalAccountId);
 				});
 			} else {

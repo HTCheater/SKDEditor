@@ -342,7 +342,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 						strings.item(index).getParentNode().removeChild(strings.item(index));
 					}
 				}
-				prefs = XmlUtils.toString(document);
+				bytes = XmlUtils.toString(document).getBytes(StandardCharsets.UTF_8);
 			}
 			if (Objects.equals(s, "setting.data")) {
 				try {

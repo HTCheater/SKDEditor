@@ -136,7 +136,7 @@ public class SpooferFragment extends Fragment {
 			});
 		});
 
-		view.findViewById(R.id.reboot).setOnClickListener(v -> new PussyShell().busybox("killall system_server"));
+		view.findViewById(R.id.reboot).setOnClickListener(v -> new PussyShell().toybox("killall system_server"));
 
 		return view;
 	}
@@ -284,7 +284,11 @@ public class SpooferFragment extends Fragment {
 			}
 			if (name.equals("cloudSaveId") ||
 					name.equals("account_enter_game_count_today") ||
-					name.equals("accountLoginRecords")) {
+					name.equals("accountLoginRecords") ||
+					name.contains("UsedAccounts") ||
+					name.contains("unity.player_session") ||
+					name.equals("unity.cloud_userid") ||
+					name.contains("SdkStateCache")) {
 				strings.item(index).getParentNode().removeChild(strings.item(index));
 			}
 		}

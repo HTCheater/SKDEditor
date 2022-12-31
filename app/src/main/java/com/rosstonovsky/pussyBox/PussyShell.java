@@ -37,6 +37,16 @@ public class PussyShell {
 
 	private String commands;
 
+	private static String toyboxPath = "." + PussyUser.getAppFilesFolder() + "/bin/toybox ";
+
+	public static String getToyboxPath() {
+		return toyboxPath;
+	}
+
+	public static void setToyboxPath(String toyboxPath) {
+		PussyShell.toyboxPath = toyboxPath;
+	}
+
 	public PussyShell cmd(String commands) {
 		this.commands = commands;
 		return this;
@@ -98,8 +108,8 @@ public class PussyShell {
 		return stdout;
 	}
 
-	public List<String> busybox(String command) {
-		return run("." + PussyUser.getAppFilesFolder() + "/bin/busybox " + command);
+	public List<String> toybox(String command) {
+		return run(toyboxPath + command);
 	}
 
 	public static void closeStreams() {

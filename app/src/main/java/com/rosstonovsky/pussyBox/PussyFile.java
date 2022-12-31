@@ -11,10 +11,9 @@ import java.util.List;
 
 public class PussyFile extends File {
 
-	private final String busyboxPath = "." + PussyUser.getAppFilesFolder() + "/bin/busybox ";
-
 	public PussyFile(@NonNull String pathname) {
 		super(pathname);
+		//new PussyShell().cmd(toyboxPath + " chattr -ia -R \"" + pathname + "\"").exec();
 	}
 
 	public PussyFile(@Nullable String parent, @NonNull String child) {
@@ -31,7 +30,7 @@ public class PussyFile extends File {
 
 	@Override
 	public boolean isFile() {
-		List<String> stdout = new PussyShell().busybox("stat -c %F \"" + getAbsolutePath() + "\"");
+		List<String> stdout = new PussyShell().toybox("stat -c %F \"" + getAbsolutePath() + "\"");
 		if (stdout.size() != 0) {
 			return stdout.get(0).contains("file");
 		}
@@ -42,13 +41,13 @@ public class PussyFile extends File {
 	public boolean exists() {
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "ls \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "ls \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		return stderr.size() == 0;
 	}
 
 	@Override
 	public boolean isDirectory() {
-		List<String> stdout = new PussyShell().busybox("stat -c %F \"" + getAbsolutePath() + "\"");
+		List<String> stdout = new PussyShell().toybox("stat -c %F \"" + getAbsolutePath() + "\"");
 
 		if (stdout.size() != 0) {
 			return stdout.get(0).contains("directory");
@@ -57,7 +56,7 @@ public class PussyFile extends File {
 	}
 
 	public boolean isLink() {
-		List<String> stdout = new PussyShell().busybox("stat -c %F \"" + getAbsolutePath() + "\"");
+		List<String> stdout = new PussyShell().toybox("stat -c %F \"" + getAbsolutePath() + "\"");
 
 		if (stdout.size() != 0) {
 			return stdout.get(0).contains("symbolic link");
@@ -70,15 +69,15 @@ public class PussyFile extends File {
 	public boolean delete() {
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "rm -rf \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "rm -rf \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		return stderr.size() == 0;
 	}
 
 	@Nullable
 	@Override
-	public File[] listFiles() {
+	public PussyFile[] listFiles() {
 		List<PussyFile> allFiles = new ArrayList<>();
-		List<String> files = new PussyShell().busybox("ls -1 -p \"" + getAbsolutePath() + "\"");
+		List<String> files = new PussyShell().toybox("ls -1 -p \"" + getAbsolutePath() + "\"");
 		List<PussyFile> sortedFolders = new ArrayList<>();
 		List<PussyFile> sortedFiles = new ArrayList<>();
 		for (int i = 0; i < files.size(); i++) {
@@ -98,7 +97,7 @@ public class PussyFile extends File {
 	 * Returns permission, user id, group id
 	 */
 	public int[] getProperties() {
-		List<String> stdout = new PussyShell().busybox("stat -c \"%a %u %g\" \"" + getAbsolutePath() + "\"");
+		List<String> stdout = new PussyShell().toybox("stat -c \"%a %u %g\" \"" + getAbsolutePath() + "\"");
 		String[] propertiesArr = stdout.get(0).split("\\s");
 		int[] properties = new int[3];
 		int i = 0;
@@ -111,9 +110,9 @@ public class PussyFile extends File {
 
 	public void setProperties(int[] properties) {
 		PussyShell shell = new PussyShell();
-		shell.busybox("chmod -R " + properties[0] + " \"" + getAbsolutePath() + "\"");
-		shell.busybox("chown -R " + properties[1] + " \"" + getAbsolutePath() + "\"");
-		shell.busybox("chgrp -R " + properties[2] + " \"" + getAbsolutePath() + "\"");
+		shell.toybox("chmod -R " + properties[0] + " \"" + getAbsolutePath() + "\"");
+		shell.toybox("chown -R " + properties[1] + " \"" + getAbsolutePath() + "\"");
+		shell.toybox("chgrp -R " + properties[2] + " \"" + getAbsolutePath() + "\"");
 	}
 
 	@Override
@@ -136,7 +135,7 @@ public class PussyFile extends File {
 	public boolean mkdir() {
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "mkdir \"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "mkdir \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		return stderr.size() == 0;
 	}
 
@@ -144,7 +143,7 @@ public class PussyFile extends File {
 	public boolean mkdirs() {
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "mkdir -p \"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "mkdir -p \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		return stderr.size() == 0;
 	}
 
@@ -159,7 +158,7 @@ public class PussyFile extends File {
 		}
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "cp -rf \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -rF \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {
@@ -200,7 +199,7 @@ public class PussyFile extends File {
 	public long lastModified() {
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "date +%s -r \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "date +%s -r \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		if (stdout.size() != 0) {
 			return Long.parseLong(stdout.get(0));
 		}
@@ -211,7 +210,7 @@ public class PussyFile extends File {
 	public long length() {
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(busyboxPath + "stat -c %s \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "stat -c %s \"" + getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		if (stdout.size() != 0) {
 			return Long.parseLong(stdout.get(0));
 		}

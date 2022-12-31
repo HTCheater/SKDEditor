@@ -99,8 +99,8 @@ public class MenuActivity extends AppCompatActivity {
 				return;
 			}
 
-			if (!new File(getFilesDir() + "/bin/busybox").exists()) {
-				installBusybox();
+			if (!new File(getFilesDir() + "/bin/toybox").exists()) {
+				installToybox();
 			}
 
 			File backupsFolder = new File(getFilesDir() + "/backups");
@@ -181,20 +181,24 @@ public class MenuActivity extends AppCompatActivity {
 			finish();
 		}
 		PussyUser.makeUser(this);
+		PussyShell.setToyboxPath(getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE)
+				.getString("toybox", "." + PussyUser.getAppFilesFolder() + "/bin/toybox "));
 	}
 
 	@SuppressLint({"SetWorldWritable", "SetWorldReadable"})
-	private void installBusybox() {
+	private void installToybox() {
+		//Toybox 0.8.7
+		//I hope it will work on all devices
 		String[] abis = Build.SUPPORTED_ABIS;
 		InputStream is = null;
 		for (String abi : abis) {
 			try {
 				if (abi.equals("arm64-v8a")) {
-					is = getAssets().open("busybox-arm64");
+					is = getAssets().open("toybox-aarch64");
 					break;
 				}
 				if (abi.equals("armeabi-v7a")) {
-					is = getAssets().open("busybox-arm");
+					is = getAssets().open("toybox-armv7m");
 					break;
 				}
 			} catch (Exception e) {
@@ -212,7 +216,7 @@ public class MenuActivity extends AppCompatActivity {
 			finish();
 			return;
 		}
-		File out = new File(getFilesDir() + "/bin/busybox");
+		File out = new File(getFilesDir() + "/bin/toybox");
 		try (FileOutputStream outputStream = new FileOutputStream(out, false)) {
 			int read;
 			byte[] bytes = new byte[8192];

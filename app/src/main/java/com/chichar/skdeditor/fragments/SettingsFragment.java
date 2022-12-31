@@ -22,6 +22,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.chichar.skdeditor.R;
+import com.rosstonovsky.pussyBox.PussyUser;
 
 public class SettingsFragment extends Fragment {
 
@@ -31,7 +32,11 @@ public class SettingsFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_settings, container, false);
 		SharedPreferences prefs = requireContext().getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE);
 		SwitchCompat clearGarbageSwitch = view.findViewById(R.id.clearGarbageSwitch);
+		SwitchCompat useSystemToyboxSwitch = view.findViewById(R.id.useSystemToyboxSwitch);
 		clearGarbageSwitch.setChecked(prefs.getBoolean("clearGarbage", true));
+		useSystemToyboxSwitch.setChecked(prefs.getString("toybox",
+				"." + PussyUser.getAppFilesFolder() + "/bin/toybox ")
+				.equals("." + PussyUser.getAppFilesFolder() + "/bin/toybox "));
 
 		clearGarbageSwitch.setOnClickListener((v -> {
 			SharedPreferences.Editor editor = prefs.edit();
@@ -44,6 +49,18 @@ public class SettingsFragment extends Fragment {
 			editor.putBoolean("clearGarbage", clearGarbageSwitch.isChecked());
 			editor.apply();
 		});
+		useSystemToyboxSwitch.setOnClickListener((v -> {
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString("toybox", useSystemToyboxSwitch.isChecked() ? "toybox " : "." + PussyUser.getAppFilesFolder() + "/bin/toybox ");
+			editor.apply();
+		}));
+		view.findViewById(R.id.useSystemToybox).setOnClickListener(v -> {
+			clearGarbageSwitch.toggle();
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString("toybox", useSystemToyboxSwitch.isChecked() ? "toybox " : "." + PussyUser.getAppFilesFolder() + "/bin/toybox ");
+			editor.apply();
+		});
+
 		view.findViewById(R.id.discord).setOnClickListener(v -> {
 			try {
 				startActivity(new Intent("android.intent.action.VIEW").setData(Uri.parse("https://discord.gg/mwHgFXp")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

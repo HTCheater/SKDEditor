@@ -14,46 +14,51 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.chichar.skdeditor.R;
+import com.rosstonovsky.pussyBox.PussyFile;
 
 import java.util.ArrayList;
 
-public class ExplorerAdapter extends ArrayAdapter<ExplorerItem> {
+public class ExplorerAdapter extends ArrayAdapter<PussyFile> {
+	private String parent;
 
-	public ExplorerAdapter(@NonNull Context context, ArrayList<ExplorerItem> arrayList) {
+	public ExplorerAdapter(@NonNull Context context, ArrayList<PussyFile> arrayList, String parent) {
 		super(context, 0, arrayList);
+		this.parent = parent;
 	}
 
 	@NonNull
 	@Override
 	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-		// convertView which is recyclable view
 		View currentItemView = convertView;
-
-		// of the recyclable view is null then inflate the custom layout for the same
 		if (currentItemView == null) {
 			currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.item_explorer, parent, false);
 		}
-
-		// get the position of the view from the ArrayAdapter
-		ExplorerItem explorerItem = getItem(position);
+		PussyFile pussyFile = getItem(position);
 		TextView filename = currentItemView.findViewById(R.id.filename);
-		filename.setText(explorerItem.getFileName());
-		if (explorerItem.isDirectory()) {
+		currentItemView.setOnClickListener(v -> onItemSelected(pussyFile));
+		if (pussyFile == null) {
+			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_baseline_folder_24);
+			filename.setText("...");
+			return currentItemView;
+		}
+		filename.setText(pussyFile.getName());
+		if (pussyFile.isDirectory()) {
 			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_baseline_folder_24);
 		}
-		if (explorerItem.isLink()) {
+		if (pussyFile.isLink()) {
 			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_round_shortcut_24);
 		}
-		if (explorerItem.isFile()) {
+		if (pussyFile.isFile()) {
 			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_round_file_24);
 		}
-		currentItemView.setOnClickListener(v -> onItemSelected(explorerItem));
-		// then return the recyclable view
 		return currentItemView;
 	}
 
-	public void onItemSelected(ExplorerItem explorerItem) {
-		openInExplorer(explorerItem.getPath());
+	private void onItemSelected(PussyFile pussyFile) {
+		if (pussyFile == null) {
+			openInExplorer(parent);
+			return;
+		}
+		openInExplorer(pussyFile.getPath());
 	}
 }

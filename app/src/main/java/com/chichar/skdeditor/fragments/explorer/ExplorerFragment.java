@@ -20,19 +20,18 @@ import com.chichar.skdeditor.Const;
 import com.chichar.skdeditor.R;
 import com.chichar.skdeditor.activities.EditorActivity;
 import com.rosstonovsky.pussyBox.PussyFile;
-import com.rosstonovsky.pussyBox.PussyShell;
 import com.rosstonovsky.pussyBox.PussyUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ExplorerFragment extends Fragment {
 	@SuppressLint("StaticFieldLeak")
 	private static Context explorerContext;
 	@SuppressLint("StaticFieldLeak")
 	private static ListView explorer;
-	@SuppressLint("StaticFieldLeak")
-	private static PussyFile currentFolder;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,7 +68,7 @@ public class ExplorerFragment extends Fragment {
 	public static void openInExplorer(String path) {
 		SharedPreferences prefs = explorerContext.getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE);
 		boolean clearGarbage = prefs.getBoolean("clearGarbage", true);
-		ArrayList<ExplorerItem> explorerFiles = new ArrayList<>();
+		ArrayList<PussyFile> explorerFiles = new ArrayList<>();
 		PussyFile currFolder = new PussyFile(path);
 
 		if (!currFolder.exists()) {
@@ -88,61 +87,37 @@ public class ExplorerFragment extends Fragment {
 			return;
 		}
 
-		if (path.charAt(path.length() - 1) == '/') {
-			path = path.substring(0, path.length() - 1);
-		}
-
-
-		String name = "";
-		String parent = "";
-		for (int i = path.length() - 1; i != 0; i--) {
-			if (path.charAt(i) == '/') {
-				name = path.substring(i + 1);
-				parent = path.substring(0, i);
-				break;
-			}
-		}
-
-		assert !name.equals("") : "Failed to get name";
-
-		if (!(name.equals(Const.pkg))) {
-			explorerFiles.add(new ExplorerItem(parent));
+		if (!(currFolder.getName().equals(Const.pkg))) {
+			explorerFiles.add(null);
 		}
 		ArrayList<String> gameFiles = new ArrayList<>();
 		gameFiles.add("files");
 		gameFiles.add("shared_prefs");
 		gameFiles.addAll(Const.gameFilesPaths.keySet());
-		List<String> files = new PussyShell().busybox("ls -1 -p \"" + path + "\"");
-		List<ExplorerItem> sortedFolders = new ArrayList<>();
-		List<ExplorerItem> sortedFiles = new ArrayList<>();
+		List<PussyFile> files = Arrays.asList(Objects.requireNonNull(currFolder.listFiles()));
+		List<PussyFile> sortedFolders = new ArrayList<>();
+		List<PussyFile> sortedFiles = new ArrayList<>();
 		for (int i = 0; i < files.size(); i++) {
-			String currName = files.get(i);
-			if (currName.endsWith("/")) {
-				String folderName = currName.substring(0, currName.length() - 1);
-				if (clearGarbage) {
-					if (gameFiles.contains(folderName)) {
-						sortedFolders.add(new ExplorerItem(path + "/" + folderName, folderName, true, false));
-					}
-				} else {
-					sortedFolders.add(new ExplorerItem(path + "/" + folderName, folderName, true, false));
+			PussyFile pussyFile = files.get(i);
+			if (!clearGarbage) {
+				sortedFolders.add(pussyFile);
+				continue;
+			}
+			if (gameFiles.contains(pussyFile.getName())) {
+				if (pussyFile.isDirectory()) {
+					sortedFolders.add(pussyFile);
+					continue;
 				}
-			} else {
-				if (clearGarbage) {
-					if (gameFiles.contains(currName)) {
-						sortedFiles.add(new ExplorerItem(path + "/" + currName, currName, false, true));
-					}
-				} else {
-					sortedFiles.add(new ExplorerItem(path + "/" + currName, currName, false, true));
-				}
+				sortedFiles.add(pussyFile);
 			}
 		}
 		explorerFiles.addAll(sortedFolders);
 		explorerFiles.addAll(sortedFiles);
-		ExplorerAdapter explorerAdapter = new ExplorerAdapter(explorerContext, explorerFiles);
+		ExplorerAdapter explorerAdapter = new ExplorerAdapter(explorerContext,
+				explorerFiles, currFolder.getParent());
 		TextView textView = view.findViewById(R.id.path);
 		textView.setText(currFolder.getName());
 		assert explorer != null : "Explorer is null";
 		explorer.setAdapter(explorerAdapter);
-		currentFolder = currFolder;
 	}
 }

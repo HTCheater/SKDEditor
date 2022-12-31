@@ -36,7 +36,7 @@ public class SettingsFragment extends Fragment {
 		clearGarbageSwitch.setChecked(prefs.getBoolean("clearGarbage", true));
 		useSystemToyboxSwitch.setChecked(prefs.getString("toybox",
 				"." + PussyUser.getAppFilesFolder() + "/bin/toybox ")
-				.equals("." + PussyUser.getAppFilesFolder() + "/bin/toybox "));
+				.equals("toybox "));
 
 		clearGarbageSwitch.setOnClickListener((v -> {
 			SharedPreferences.Editor editor = prefs.edit();

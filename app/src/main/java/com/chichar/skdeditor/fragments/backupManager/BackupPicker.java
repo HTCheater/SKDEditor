@@ -338,7 +338,11 @@ public class BackupPicker extends BottomSheetDialogFragment {
 					}
 					if (name.equals("cloudSaveId") ||
 							name.equals("account_enter_game_count_today") ||
-							name.equals("accountLoginRecords")) {
+							name.equals("accountLoginRecords") ||
+							name.contains("UsedAccounts") ||
+							name.contains("unity.player_session") ||
+							name.equals("unity.cloud_userid") ||
+							name.contains("SdkStateCache")) {
 						strings.item(index).getParentNode().removeChild(strings.item(index));
 					}
 				}

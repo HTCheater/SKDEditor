@@ -68,7 +68,7 @@ public class ExplorerFragment extends Fragment {
 	public static void openInExplorer(String path) {
 		SharedPreferences prefs = explorerContext.getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE);
 		boolean clearGarbage = prefs.getBoolean("clearGarbage", true);
-		ArrayList<PussyFile> explorerFiles = new ArrayList<>();
+		ArrayList<ExplorerFile> explorerFiles = new ArrayList<>();
 		PussyFile currFolder = new PussyFile(path);
 
 		if (!currFolder.exists()) {
@@ -88,33 +88,36 @@ public class ExplorerFragment extends Fragment {
 		}
 
 		if (!(currFolder.getName().equals(Const.pkg))) {
-			explorerFiles.add(null);
+			explorerFiles.add(new ExplorerFile("...", currFolder.getParent(), false, true, false));
 		}
 		ArrayList<String> gameFiles = new ArrayList<>();
 		gameFiles.add("files");
 		gameFiles.add("shared_prefs");
 		gameFiles.addAll(Const.gameFilesPaths.keySet());
 		List<PussyFile> files = Arrays.asList(Objects.requireNonNull(currFolder.listFiles()));
-		List<PussyFile> sortedFolders = new ArrayList<>();
-		List<PussyFile> sortedFiles = new ArrayList<>();
+		List<ExplorerFile> sortedFolders = new ArrayList<>();
+		List<ExplorerFile> sortedFiles = new ArrayList<>();
 		for (int i = 0; i < files.size(); i++) {
 			PussyFile pussyFile = files.get(i);
 			if (!clearGarbage) {
-				sortedFolders.add(pussyFile);
+				sortedFolders.add(new ExplorerFile(pussyFile.getName(), pussyFile.getPath(), pussyFile.isFile(), pussyFile.isDirectory(), pussyFile.isLink()));
 				continue;
 			}
 			if (gameFiles.contains(pussyFile.getName())) {
-				if (pussyFile.isDirectory()) {
-					sortedFolders.add(pussyFile);
+				if (pussyFile.isFile()) {
+					sortedFiles.add(new ExplorerFile(pussyFile.getName(), pussyFile.getPath(), true, false, false));
 					continue;
 				}
-				sortedFiles.add(pussyFile);
+				if (pussyFile.isDirectory()) {
+					sortedFolders.add(new ExplorerFile(pussyFile.getName(), pussyFile.getPath(), false, true, false));
+					continue;
+				}
+				sortedFiles.add(new ExplorerFile(pussyFile.getName(), pussyFile.getPath(), false, false, true));
 			}
 		}
 		explorerFiles.addAll(sortedFolders);
 		explorerFiles.addAll(sortedFiles);
-		ExplorerAdapter explorerAdapter = new ExplorerAdapter(explorerContext,
-				explorerFiles, currFolder.getParent());
+		ExplorerAdapter explorerAdapter = new ExplorerAdapter(explorerContext, explorerFiles);
 		TextView textView = view.findViewById(R.id.path);
 		textView.setText(currFolder.getName());
 		assert explorer != null : "Explorer is null";

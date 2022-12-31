@@ -102,9 +102,18 @@ public class PussyFile extends File {
 		int[] properties = new int[3];
 		int i = 0;
 		for (String prop : propertiesArr) {
-			properties[i] = Integer.parseInt(prop);
+			properties[i] = Integer.parseUnsignedInt(prop);
 			i++;
 		}
+		//should never happen
+		if (properties[1] == -1) {
+			properties[1] = properties[2];
+		}
+		if (properties[2] == -1) {
+			properties[1] = 0;
+			properties[2] = 0;
+		}
+
 		return properties;
 	}
 
@@ -123,8 +132,8 @@ public class PussyFile extends File {
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {
-				sb  .append(s)
-					.append("\n");
+				sb.append(s)
+						.append("\n");
 			}
 			throw new IOException(sb.toString());
 		}
@@ -162,7 +171,7 @@ public class PussyFile extends File {
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {
-				sb  .append(s)
+				sb.append(s)
 						.append("\n");
 			}
 			throw new IOException(sb.toString());
@@ -171,7 +180,7 @@ public class PussyFile extends File {
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {
-				sb  .append(s)
+				sb.append(s)
 						.append("\n");
 			}
 			throw new IOException(sb.toString());

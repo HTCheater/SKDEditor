@@ -18,12 +18,9 @@ import com.rosstonovsky.pussyBox.PussyFile;
 
 import java.util.ArrayList;
 
-public class ExplorerAdapter extends ArrayAdapter<PussyFile> {
-	private String parent;
-
-	public ExplorerAdapter(@NonNull Context context, ArrayList<PussyFile> arrayList, String parent) {
+public class ExplorerAdapter extends ArrayAdapter<ExplorerFile> {
+	public ExplorerAdapter(@NonNull Context context, ArrayList<ExplorerFile> arrayList) {
 		super(context, 0, arrayList);
-		this.parent = parent;
 	}
 
 	@NonNull
@@ -33,7 +30,7 @@ public class ExplorerAdapter extends ArrayAdapter<PussyFile> {
 		if (currentItemView == null) {
 			currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.item_explorer, parent, false);
 		}
-		PussyFile pussyFile = getItem(position);
+		ExplorerFile pussyFile = getItem(position);
 		TextView filename = currentItemView.findViewById(R.id.filename);
 		currentItemView.setOnClickListener(v -> onItemSelected(pussyFile));
 		if (pussyFile == null) {
@@ -54,11 +51,7 @@ public class ExplorerAdapter extends ArrayAdapter<PussyFile> {
 		return currentItemView;
 	}
 
-	private void onItemSelected(PussyFile pussyFile) {
-		if (pussyFile == null) {
-			openInExplorer(parent);
-			return;
-		}
-		openInExplorer(pussyFile.getPath());
+	private void onItemSelected(ExplorerFile explorerFile) {
+		openInExplorer(explorerFile.getPath());
 	}
 }

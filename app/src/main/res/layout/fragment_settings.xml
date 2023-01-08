@@ -5,9 +5,9 @@
 	android:layout_height="match_parent">
 
 	<androidx.appcompat.widget.LinearLayoutCompat
-		android:orientation="vertical"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
 
 		<com.google.android.material.imageview.ShapeableImageView
 			android:id="@+id/icon"
@@ -82,7 +82,7 @@
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
 		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/useSystemToybox"
+			android:id="@+id/customToybox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:padding="5dp">
@@ -91,18 +91,36 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="10dp"
-				android:text="Use system's toybox"
+				android:text="Use custom toybox"
 				android:textSize="18sp"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent" />
 
 			<androidx.appcompat.widget.SwitchCompat
-				android:id="@+id/useSystemToyboxSwitch"
+				android:id="@+id/customToyboxSwitch"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:id="@+id/customToyboxCmd"
+			android:layout_width="match_parent"
+			android:layout_height="56dp"
+			android:padding="5dp">
+
+			<TextView
+				android:id="@+id/customToyboxCmdText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="10dp"
+				android:text="Custom toybox command"
+				android:textSize="18sp"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 

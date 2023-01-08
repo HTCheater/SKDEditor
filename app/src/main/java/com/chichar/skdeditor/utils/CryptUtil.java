@@ -33,13 +33,13 @@ public class CryptUtil {
 				fileName.equals("task.data") ||
 				fileName.equals("setting.data") ||
 				fileName.contains("season_data")) {
-			result = encryptDES(data, new byte[]{0x69, 0x61, 0x6d, 0x62, 0x6f, 0x0, 0x0, 0x0});
+			result = encryptDES(result, new byte[]{0x69, 0x61, 0x6d, 0x62, 0x6f, 0x0, 0x0, 0x0});
 		}
 		if (fileName.equals("statistic.data")) {
-			result = encryptDES(data, new byte[]{0x63, 0x72, 0x73, 0x74, 0x31, 0x0, 0x0, 0x0});
+			result = encryptDES(result, new byte[]{0x63, 0x72, 0x73, 0x74, 0x31, 0x0, 0x0, 0x0});
 		}
 		if (fileName.equals("game.data")) {
-			result = xor(data.getBytes(StandardCharsets.UTF_8));
+			result = xor(result);
 		}
 		return result;
 	}
@@ -154,7 +154,7 @@ public class CryptUtil {
 		return new String(resultBytes);
 	}
 
-	private static byte[] encryptDES(String text, byte[] key) {
+	private static byte[] encryptDES(byte[] bytes, byte[] key) {
 		byte[] iv = new byte[8];
 		iv[0] = 0x41;
 		iv[1] = 0x68;
@@ -181,7 +181,7 @@ public class CryptUtil {
 
 		byte[] resultBytes = new byte[0];
 		try {
-			resultBytes = cipher.doFinal(text.getBytes());
+			resultBytes = cipher.doFinal(bytes);
 		} catch (BadPaddingException | IllegalBlockSizeException e) {
 			e.printStackTrace();
 		}

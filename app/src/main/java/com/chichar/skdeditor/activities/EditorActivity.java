@@ -205,7 +205,7 @@ public class EditorActivity extends AppCompatActivity {
 				pussyFile.commit();
 			} catch (IOException e) {
 				handler.post(() -> {
-					Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, "Error:\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
 					FileUtils.writeFile(file.getAbsolutePath(), text, StandardCharsets.UTF_8);
 					findViewById(R.id.loading).setVisibility(GONE);
 				});

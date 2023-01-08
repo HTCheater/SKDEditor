@@ -1,17 +1,21 @@
 package com.chichar.skdeditor.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +26,11 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.chichar.skdeditor.R;
+import com.rosstonovsky.pussyBox.PussyShell;
 import com.rosstonovsky.pussyBox.PussyUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingsFragment extends Fragment {
 
@@ -32,11 +40,72 @@ public class SettingsFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_settings, container, false);
 		SharedPreferences prefs = requireContext().getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE);
 		SwitchCompat clearGarbageSwitch = view.findViewById(R.id.clearGarbageSwitch);
-		SwitchCompat useSystemToyboxSwitch = view.findViewById(R.id.useSystemToyboxSwitch);
+		SwitchCompat useCustomToyboxSwitch = view.findViewById(R.id.customToyboxSwitch);
+		View customToyboxCmd = view.findViewById(R.id.customToyboxCmd);
+		TextView customToyboxCmdText = view.findViewById(R.id.customToyboxCmdText);
+		String defToyboxCmd = "." + PussyUser.getAppFilesFolder() + "/bin/toybox ";
+		View.OnClickListener setCustomToyboxCmd = v -> {
+			AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+			TextView title = new TextView(getContext());
+			title.setText("Enter custom toybox command");
+			title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+			title.setTypeface(title.getTypeface(), Typeface.BOLD);
+			title.setPadding(dip2px(requireContext(), 30), 0, 0, 0);
+			alert.setCustomTitle(title);
+			View linearLayout = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edittext, null);
+			alert.setView(linearLayout);
+			String prefCmd = prefs.getString("toybox", "").trim();
+			if (prefCmd.equals(defToyboxCmd.trim())) {
+				prefCmd = "";
+			}
+			((EditText) linearLayout.findViewById(R.id.input)).setHint("(auto)");
+			((EditText) linearLayout.findViewById(R.id.input)).setText(prefCmd);
+
+			alert.setPositiveButton("OK", null);
+
+
+			alert.setNegativeButton("Cancel", (dialog, whichButton) -> dialog.dismiss());
+			AlertDialog alertDialog = alert.create();
+			alertDialog.show();
+			alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v1 -> {
+				String cmd = ((EditText) linearLayout.findViewById(R.id.input)).getText().toString().trim();
+				if (!cmd.equals("")) {
+					cmd += " ";
+				}
+				List<String> stdout = new ArrayList<>();
+				List<String> stderr = new ArrayList<>();
+				if (!cmd.equals("")) {
+					new PussyShell().cmd(cmd).to(stdout, stderr).exec();
+					if (stderr.size() > 0) {
+						Toast.makeText(requireContext(), "Error:\n" + stderr.get(0), Toast.LENGTH_LONG).show();
+						return;
+					}
+					stdout.clear();
+				}
+				//test if it's needed binary
+				new PussyShell().cmd(cmd + "stat -c \"%a %u %g\" /dev/random").to(stdout, stderr).exec();
+				if (stderr.size() > 0) {
+					Toast.makeText(requireContext(), "Error: file is binary but stat applet doesn't exist", Toast.LENGTH_LONG).show();
+					return;
+				}
+				SharedPreferences.Editor editor = prefs.edit();
+				alertDialog.dismiss();
+				if (cmd.equals("")) {
+					editor.putString("toybox", "");
+					editor.apply();
+					return;
+				}
+				editor.putString("toybox", cmd + " ");
+				editor.apply();
+			});
+
+			alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+			alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_bg);
+		};
 		clearGarbageSwitch.setChecked(prefs.getBoolean("clearGarbage", true));
-		useSystemToyboxSwitch.setChecked(prefs.getString("toybox",
-				"." + PussyUser.getAppFilesFolder() + "/bin/toybox ")
-				.equals("toybox "));
+		useCustomToyboxSwitch.setChecked(!prefs.getString("toybox",
+						defToyboxCmd)
+				.equals(defToyboxCmd));
 
 		clearGarbageSwitch.setOnClickListener((v -> {
 			SharedPreferences.Editor editor = prefs.edit();
@@ -49,15 +118,31 @@ public class SettingsFragment extends Fragment {
 			editor.putBoolean("clearGarbage", clearGarbageSwitch.isChecked());
 			editor.apply();
 		});
-		useSystemToyboxSwitch.setOnClickListener((v -> {
+		useCustomToyboxSwitch.setOnClickListener((v -> {
+			if (useCustomToyboxSwitch.isChecked()) {
+				customToyboxCmdText.setTextColor(getResources().getColor(R.color.white));
+				customToyboxCmd.setOnClickListener(setCustomToyboxCmd);
+				return;
+			}
+			customToyboxCmdText.setTextColor(getResources().getColor(R.color.gray));
+			customToyboxCmd.setOnClickListener(v1 -> {
+			});
 			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString("toybox", useSystemToyboxSwitch.isChecked() ? "toybox " : "." + PussyUser.getAppFilesFolder() + "/bin/toybox ");
+			editor.putString("toybox", defToyboxCmd);
 			editor.apply();
 		}));
-		view.findViewById(R.id.useSystemToybox).setOnClickListener(v -> {
-			clearGarbageSwitch.toggle();
+		view.findViewById(R.id.customToybox).setOnClickListener(v -> {
+			useCustomToyboxSwitch.toggle();
+			if (useCustomToyboxSwitch.isChecked()) {
+				customToyboxCmdText.setTextColor(getResources().getColor(R.color.white));
+				customToyboxCmd.setOnClickListener(setCustomToyboxCmd);
+				return;
+			}
+			customToyboxCmdText.setTextColor(getResources().getColor(R.color.gray));
+			customToyboxCmd.setOnClickListener(v1 -> {
+			});
 			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString("toybox", useSystemToyboxSwitch.isChecked() ? "toybox " : "." + PussyUser.getAppFilesFolder() + "/bin/toybox ");
+			editor.putString("toybox", defToyboxCmd);
 			editor.apply();
 		});
 
@@ -84,6 +169,11 @@ public class SettingsFragment extends Fragment {
 		});
 		view.findViewById(R.id.changelog).setOnClickListener(v -> showChangelogDial());
 
+		if (useCustomToyboxSwitch.isChecked()) {
+			customToyboxCmd.setOnClickListener(setCustomToyboxCmd);
+			return view;
+		}
+		customToyboxCmdText.setTextColor(getResources().getColor(R.color.gray));
 		return view;
 	}
 
@@ -91,7 +181,10 @@ public class SettingsFragment extends Fragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 		builder.setTitle("Changelog");
 		builder.setMessage(Html.fromHtml(
-				"<p><b>3.0</b></p>" +
+				"<p><b>3.1</b></p>" +
+						"<p>Added ability to select custom toybox command</p>" +
+						"<p>Fixed bugs</p>" +
+						"<p><b>3.0</b></p>" +
 						"<p>Added Android 11 and later support</p>" +
 						"<p>Technical improvements</p>" +
 						"<p>UI improvements</p>" +
@@ -142,5 +235,10 @@ public class SettingsFragment extends Fragment {
 		msgTxt.setMovementMethod(LinkMovementMethod.getInstance());
 		alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
 		alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_bg);
+	}
+
+	private static int dip2px(Context context, float dpValue) {
+		final float scale = context.getResources().getDisplayMetrics().density;
+		return (int) (dpValue * scale + 0.5f);
 	}
 }

@@ -167,7 +167,15 @@ public class PussyFile extends File {
 		}
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -rf \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		if (destionation.isDirectory()) {
+			PussyFile newFile = new PussyFile(destionation, getName());
+			if (newFile.exists()) {
+				newFile.delete();
+			}
+		} else {
+			destionation.delete();
+		}
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -r \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {

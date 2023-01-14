@@ -31,7 +31,6 @@ import com.rosstonovsky.pussyBox.PussyUser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class SettingsFragment extends Fragment {
 
@@ -182,7 +181,9 @@ public class SettingsFragment extends Fragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 		builder.setTitle("Changelog");
 		builder.setMessage(Html.fromHtml(
-				"<p><b>3.2</b></p>" +
+				"<p><b>3.3</b></p>" +
+						"<p>Text editor improvements</p>" +
+						"<p><b>3.2</b></p>" +
 						"<p>Fixed bug when you couldn't type in editor</p>" +
 						"<p>Automatic suitable binary detection on first boot</p>" +
 						"<p>Better compatibility with other binaries</p>" +

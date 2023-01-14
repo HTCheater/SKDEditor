@@ -161,13 +161,21 @@ public class PussyFile extends File {
 		copyTo(destionation);
 	}
 
+	/*
+	* destination must be a folder
+	 */
+
 	public void copyTo(PussyFile destionation) throws IOException {
-		if (!destionation.exists()) {
-			destionation.mkdirs();
+		if (!destionation.exists() && !destionation.mkdirs()) {
+			throw new IOException("Failed to create dirs for destination file " +
+					destionation.getAbsolutePath());
 		}
+		int[] props = destionation.getProperties();
 		List<String> stdout = new ArrayList<>();
 		List<String> stderr = new ArrayList<>();
-		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -rF \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		//some binaries doesn't have -F option for cp, using rm -rf instead
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "rm -rf \"" + destionation.getAbsolutePath() + "/" + getName() + "\"").exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -r \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {
@@ -176,7 +184,7 @@ public class PussyFile extends File {
 			}
 			throw new IOException(sb.toString());
 		}
-		destionation.setProperties(destionation.getProperties());
+		destionation.setProperties(props);
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {

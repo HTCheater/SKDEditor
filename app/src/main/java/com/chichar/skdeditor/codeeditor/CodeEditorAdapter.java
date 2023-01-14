@@ -38,8 +38,6 @@ public class CodeEditorAdapter extends BaseAdapter {
 
 	private final TextPaint textPaint = new TextPaint();
 
-	private int currFocus = 0;
-
 	private final ArrayList<Integer[]> highlight = new ArrayList<>();
 
 	public CodeEditorAdapter(Context context, String[] text) {
@@ -164,13 +162,11 @@ public class CodeEditorAdapter extends BaseAdapter {
 						System.arraycopy(text, 0, repl, 0, text.length);
 						repl[text.length] = "";
 						text = repl;
-						currFocus = text.length;
 						notifyDataSetChanged();
 						parent.scrollBy(0, 1);
 						return;
 					}
 					if (newContent.length > 0) {
-						currFocus = currFocus + newContent.length - 1;
 						text[position] = newString;
 						StringBuilder stringBuilder = new StringBuilder();
 						for (int i = 0; i < text.length; i++) {
@@ -188,10 +184,6 @@ public class CodeEditorAdapter extends BaseAdapter {
 				}
 			}
 		});
-
-		if (position == currFocus) {
-			editText.requestFocus();
-		}
 
 		textPaint.setTextSize(editText.getTextSize());
 		int width = (int) textPaint.measureText("99");

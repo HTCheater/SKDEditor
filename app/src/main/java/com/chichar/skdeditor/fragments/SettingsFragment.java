@@ -31,6 +31,7 @@ import com.rosstonovsky.pussyBox.PussyUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SettingsFragment extends Fragment {
 
@@ -45,7 +46,7 @@ public class SettingsFragment extends Fragment {
 		TextView customToyboxCmdText = view.findViewById(R.id.customToyboxCmdText);
 		String defToyboxCmd = "." + PussyUser.getAppFilesFolder() + "/bin/toybox ";
 		View.OnClickListener setCustomToyboxCmd = v -> {
-			AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+			AlertDialog.Builder alert = new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom);
 			TextView title = new TextView(getContext());
 			title.setText("Enter custom toybox command");
 			title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -83,9 +84,9 @@ public class SettingsFragment extends Fragment {
 					stdout.clear();
 				}
 				//test if it's needed binary
-				new PussyShell().cmd(cmd + "stat -c \"%a %u %g\" /dev/random").to(stdout, stderr).exec();
+				new PussyShell().cmd(cmd + "stat -c \"%a %u %g\" " + PussyUser.getDataFolder()).to(stdout, stderr).exec();
 				if (stderr.size() > 0) {
-					Toast.makeText(requireContext(), "Error: file is binary but stat applet doesn't exist", Toast.LENGTH_LONG).show();
+					Toast.makeText(requireContext(), "Error:\n" + stderr.get(0), Toast.LENGTH_LONG).show();
 					return;
 				}
 				SharedPreferences.Editor editor = prefs.edit();
@@ -181,7 +182,11 @@ public class SettingsFragment extends Fragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 		builder.setTitle("Changelog");
 		builder.setMessage(Html.fromHtml(
-				"<p><b>3.1</b></p>" +
+				"<p><b>3.2</b></p>" +
+						"<p>Fixed bug when you couldn't type in editor</p>" +
+						"<p>Automatic suitable binary detection on first boot</p>" +
+						"<p>Better compatibility with other binaries</p>" +
+						"<p><b>3.1</b></p>" +
 						"<p>Added ability to select custom toybox command</p>" +
 						"<p>Fixed bugs</p>" +
 						"<p><b>3.0</b></p>" +

@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/editableText"
         android:textSize="16sp"
-        android:textIsSelectable="true"
         android:background="@android:color/transparent"
         android:scrollHorizontally="false"
         android:textColor="@color/white"

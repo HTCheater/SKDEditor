@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class MenuActivity extends AppCompatActivity {
@@ -75,6 +76,54 @@ public class MenuActivity extends AppCompatActivity {
 				f.delete();
 			}
 		}
+		menucontext = this;
+		try {
+			PussyShell.init(() -> Toast.makeText(menucontext, "There was an error while executing command, logfile located in /sdcard/SKDE/Log/", Toast.LENGTH_LONG).show());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (!PussyShell.isRoot()) {
+			Toast.makeText(this, "Root access denied", Toast.LENGTH_SHORT).show();
+			PussyShell.closeStreams();
+			finishAffinity();
+			finish();
+		}
+		PussyUser.makeUser(this);
+		String defToyboxCmd = "." + PussyUser.getAppFilesFolder() + "/bin/toybox ";
+		SharedPreferences prefs = getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE);
+		boolean firstBoot = prefs.getBoolean("firstBoot", true);
+		String preferedToyboxCmd = prefs.getString("toybox", defToyboxCmd);
+		String[] autoCmds = {
+				defToyboxCmd, //should work on most devices, SKDE guaranteed to work with it
+				"toybox ", //should be pre-installed on all devices, shouldn't differ much from built-in toybox
+				"",
+				"busybox " //there are might be issues with it
+		};
+
+		if (firstBoot) {
+			ArrayList<String> stdout = new ArrayList<>();
+			ArrayList<String> stderr = new ArrayList<>();
+			for (String cmd : autoCmds) {
+				new PussyShell().cmd(cmd +
+								"stat -c \"%a %u %g\" " + PussyUser.getDataFolder())
+						.to(stdout, stderr)
+						.exec();
+				if (stderr.size() == 0) {
+					preferedToyboxCmd = cmd;
+					prefs.edit()
+							.putString("toybox", cmd)
+							.putBoolean("firstBoot", false)
+							.apply();
+					break;
+				}
+				stderr.clear();
+			}
+			if (stdout.size() == 0) {
+				Toast.makeText(this, "Can't detect busybox or toybox, in order to continue you must install it", Toast.LENGTH_LONG).show();
+			}
+		}
+		PussyShell.setToyboxPath(preferedToyboxCmd);
+
 
 		splashScreen.setOnExitAnimationListener(splashScreenView -> {
 			Thread.setDefaultUncaughtExceptionHandler(new CrashHandler());
@@ -168,21 +217,6 @@ public class MenuActivity extends AppCompatActivity {
 				}
 			});
 		});
-		menucontext = this;
-		try {
-			PussyShell.init(() -> Toast.makeText(menucontext, "There was an error while executing command, logfile located in /sdcard/SKDE/Log/", Toast.LENGTH_LONG).show());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (!PussyShell.isRoot()) {
-			Toast.makeText(this, "Root access denied", Toast.LENGTH_SHORT).show();
-			PussyShell.closeStreams();
-			finishAffinity();
-			finish();
-		}
-		PussyUser.makeUser(this);
-		PussyShell.setToyboxPath(getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE)
-				.getString("toybox", "." + PussyUser.getAppFilesFolder() + "/bin/toybox "));
 	}
 
 	@SuppressLint({"SetWorldWritable", "SetWorldReadable"})

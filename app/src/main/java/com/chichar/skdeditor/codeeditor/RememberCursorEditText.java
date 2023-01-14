@@ -3,8 +3,7 @@ package com.chichar.skdeditor.codeeditor;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
-import android.view.inputmethod.InputMethodManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,7 +11,10 @@ import androidx.appcompat.widget.AppCompatEditText;
 
 public class RememberCursorEditText extends AppCompatEditText {
 
-	private int currSel = 0;
+	//can handle height changes only if it's static
+	private static int currSel = 0;
+
+	private int height = 0;
 
 	public RememberCursorEditText(@NonNull Context context) {
 		super(context);
@@ -35,26 +37,34 @@ public class RememberCursorEditText extends AppCompatEditText {
 	}
 
 	@Override
-	public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-		InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
-		try {
-			super.setSelection(currSel);
-		} catch (Exception ignored) {
-
-		}
-		return true;
-	}
-
-	@Override
 	protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
 		super.onFocusChanged(focused, direction, previouslyFocusedRect);
 		if (!focused) {
 			try {
-				super.setSelection(currSel);
+				setSelection(currSel);
+			} catch (Exception ignored) {
+			}
+		}
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		super.onLayout(changed, left, top, right, bottom);
+		if (height == 0) {
+			height = bottom - top;
+			return;
+		}
+		if (height != (bottom - top)) {
+			height = bottom;
+			int sel = currSel;
+			requestFocus();
+			Log.d("TAG", "onLayout sel: " + sel);
+			try {
+				setSelection(sel);
 			} catch (Exception ignored) {
 
 			}
+			currSel = sel;
 		}
 	}
 }

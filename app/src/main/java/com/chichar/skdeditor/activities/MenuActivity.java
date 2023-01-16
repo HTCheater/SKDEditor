@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -77,8 +78,13 @@ public class MenuActivity extends AppCompatActivity {
 			}
 		}
 		menucontext = this;
+		Handler handler = new Handler(Looper.myLooper());
 		try {
-			PussyShell.init(() -> Toast.makeText(menucontext, "There was an error while executing command, logfile located in /sdcard/SKDE/Log/", Toast.LENGTH_LONG).show());
+			PussyShell.init(() -> handler.post(() ->
+					Toast.makeText(menucontext,
+					"There was an error while executing command, logfile located in /sdcard/SKDE/Log/",
+					Toast.LENGTH_LONG).show()
+			));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

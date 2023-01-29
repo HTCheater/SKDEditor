@@ -283,6 +283,9 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		new PussyShell().cmd("." + PussyUser.getAppFilesFolder() + "/bin/busybox killall " + Const.pkg).exec();
 
 		for (Map.Entry<String, Byte[]> entry : backup.entrySet()) {
+			if (!checkedFiles.contains(entry.getKey())) {
+				continue;
+			}
 			byte[] bytes = new byte[entry.getValue().length];
 			for (int i = 0; i < entry.getValue().length; i++) {
 				bytes[i] = entry.getValue()[i];
@@ -304,7 +307,10 @@ public class BackupPicker extends BottomSheetDialogFragment {
 
 	private void createBackup(ArrayList<String> checkedFiles) throws IOException, IllegalAccessException, ParserConfigurationException, SAXException {
 		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.getDefault());
-		String fileName = dateFormat.format(new Date()).replace('.', '-');
+		String fileName = dateFormat.format(new Date())
+				.replace('.', '-')
+				.replace('/', '-')
+				.replace('\\', '-');
 		FileOutputStream fileOutputStream = new FileOutputStream(requireContext().getFilesDir().getAbsolutePath() + "/backups/" + fileName + ".skdb");
 		DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(fileOutputStream);
 		DataOutputStream outputStream = new DataOutputStream(deflaterOutputStream);

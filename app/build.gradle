@@ -10,8 +10,8 @@ android {
 		applicationId "com.chichar.skdeditor"
 		minSdk 21
 		targetSdk 33
-		versionCode 33
-		versionName "3.3"
+		versionCode 34
+		versionName "3.4"
 		resConfigs "en"
 		resValue "string", "version", versionName
 	}
@@ -34,8 +34,8 @@ android {
 
 dependencies {
 	implementation 'androidx.core:core-splashscreen:1.0.0'
-	implementation 'androidx.appcompat:appcompat:1.5.1'
+	implementation 'androidx.appcompat:appcompat:1.6.0'
 	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-	implementation 'com.google.android.material:material:1.7.0'
+	implementation 'com.google.android.material:material:1.8.0'
 	implementation 'androidx.preference:preference:1.1.0'
 }

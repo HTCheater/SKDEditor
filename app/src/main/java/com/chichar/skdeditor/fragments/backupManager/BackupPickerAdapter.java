@@ -18,10 +18,12 @@ import java.util.ArrayList;
 public class BackupPickerAdapter extends ArrayAdapter<String> {
 
 	private final ArrayList<String> checkedArr;
+	private final ArrayList<String> fullArr = new ArrayList<>();
 
 	public BackupPickerAdapter(@NonNull Context context, ArrayList<String> arrayList) {
 		super(context, 0, arrayList);
 		checkedArr = arrayList;
+		fullArr.addAll(arrayList);
 	}
 
 	public ArrayList<String> getCheckedArr() {
@@ -37,14 +39,15 @@ public class BackupPickerAdapter extends ArrayAdapter<String> {
 			currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.item_backup_picker, parent, false);
 		}
 		View finalCurrentItemView = currentItemView;
-		((TextView) finalCurrentItemView.findViewById(R.id.filename)).setText(getItem(position));
+		((TextView) finalCurrentItemView.findViewById(R.id.filename)).setText(fullArr.get(position));
 
 		((CheckBox) finalCurrentItemView.findViewById(R.id.check)).setOnCheckedChangeListener((buttonView, isChecked) -> {
-			if (isChecked && !checkedArr.contains(getItem(position))) {
-				checkedArr.add(getItem(position));
+			String item = fullArr.get(position);
+			if (isChecked && !checkedArr.contains(item)) {
+				checkedArr.add(item);
 			}
 			if (!isChecked) {
-				checkedArr.remove(getItem(position));
+				checkedArr.remove(item);
 			}
 		});
 		return currentItemView;

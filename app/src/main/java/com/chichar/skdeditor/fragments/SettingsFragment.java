@@ -181,7 +181,9 @@ public class SettingsFragment extends Fragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 		builder.setTitle("Changelog");
 		builder.setMessage(Html.fromHtml(
-				"<p><b>3.4</b></p>" +
+				"<p><b>3.5</b></p>" +
+						"<p>Fixed bug in backup picker</p>" +
+						"<p><b>3.4</b></p>" +
 						"<p>Fixed backup creation bug</p>" +
 						"<p>Selecting files now works when restoring backup</p>" +
 						"<p><b>3.3</b></p>" +

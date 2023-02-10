@@ -22,7 +22,6 @@ import com.chichar.skdeditor.utils.XmlUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.rosstonovsky.pussyBox.PussyFile;
 import com.rosstonovsky.pussyBox.PussyShell;
-import com.rosstonovsky.pussyBox.PussyUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -148,7 +147,8 @@ public class BackupPicker extends BottomSheetDialogFragment {
 						executor1.execute(() -> {
 							try {
 								createBackup(checkedFiles);
-							} catch (IOException | IllegalAccessException | ParserConfigurationException | SAXException e) {
+							} catch (IOException | IllegalAccessException |
+							         ParserConfigurationException | SAXException e) {
 								e.printStackTrace();
 							}
 							handler1.post(() -> {
@@ -171,9 +171,8 @@ public class BackupPicker extends BottomSheetDialogFragment {
 							} catch (IOException e) {
 								e.printStackTrace();
 								handler1.post(() -> {
-									Toast.makeText(requireContext(), "Invalid file", Toast.LENGTH_SHORT).show();
+									Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
 									dismiss();
-									Toast.makeText(getContext(), "Successfully restored backup", Toast.LENGTH_SHORT).show();
 								});
 								return;
 							}
@@ -214,7 +213,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		while (true) {
 			int r = fileInputStream.read();
 			if (r == -1) {
-				throw new EOFException();
+				throw new EOFException("File is corrupted");
 			}
 			b = (byte) r;
 			if (b != 47) {
@@ -280,7 +279,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 	}
 
 	private void restoreBackup(ArrayList<String> checkedFiles, HashMap<String, Byte[]> backup) throws IOException {
-		new PussyShell().cmd("." + PussyUser.getAppFilesFolder() + "/bin/busybox killall " + Const.pkg).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "killall " + Const.pkg).exec();
 
 		for (Map.Entry<String, Byte[]> entry : backup.entrySet()) {
 			if (!checkedFiles.contains(entry.getKey())) {
@@ -296,11 +295,9 @@ public class BackupPicker extends BottomSheetDialogFragment {
 				bytes = Base64.encode(bytes, android.util.Base64.NO_WRAP);
 			}
 			PussyFile pussyFile = new PussyFile(Const.gameFilesPaths.get(entry.getKey()));
-			try (FileOutputStream outputStream = new FileOutputStream(pussyFile.getFile())) {
-				outputStream.write(bytes);
-			} catch (IOException e) {
-				Toast.makeText(MenuActivity.menucontext, "Failed to write to output stream", Toast.LENGTH_SHORT).show();
-			}
+			FileOutputStream outputStream = new FileOutputStream(pussyFile.getFile());
+			outputStream.write(bytes);
+			outputStream.close();
 			pussyFile.commit();
 		}
 	}

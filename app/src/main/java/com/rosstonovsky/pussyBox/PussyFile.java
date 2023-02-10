@@ -175,7 +175,7 @@ public class PussyFile extends File {
 		List<String> stderr = new ArrayList<>();
 		//some binaries doesn't have -F option for cp, using rm -rf instead
 		new PussyShell().cmd(PussyShell.getToyboxPath() + "rm -rf \"" + destionation.getAbsolutePath() + "/" + getName() + "\"").exec();
-		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -r \"" + getAbsolutePath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
+		new PussyShell().cmd(PussyShell.getToyboxPath() + "cp -r \"" + getPath() + "\" " + "\"" + destionation.getAbsolutePath() + "\"").to(stdout, stderr).exec();
 		if (stderr.size() != 0) {
 			StringBuilder sb = new StringBuilder();
 			for (String s : stderr) {
@@ -195,7 +195,14 @@ public class PussyFile extends File {
 		}
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public File getFile() throws IOException {
+		if ((PussyUser.getAppDataFolder() + "/cache/" + getName()).equals(getPath())) {
+			throw new IOException("Cannot get file from temp file");
+		}
+		if (!exists()) {
+			createNewFile();
+		}
 		PussyFile cacheFolder = new PussyFile(PussyUser.getAppDataFolder() + "/cache/");
 		copyTo(cacheFolder);
 		return new File(PussyUser.getProtectedCacheFolder(), getName());

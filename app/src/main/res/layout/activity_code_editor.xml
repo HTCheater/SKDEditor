@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <com.chichar.skdeditor.codeeditor.CodeEditor
+    <com.rosstonovsky.skdeditor.codeeditor.CodeEditor
         android:id="@+id/editor"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -174,7 +174,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:id="@+id/loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -195,5 +195,5 @@
             android:indeterminate="true"
             android:indeterminateTint="@color/purple_200"
             android:indeterminateTintMode="src_atop" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

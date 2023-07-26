@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	package="com.chichar.skdeditor">
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -16,12 +15,11 @@
 	<application
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:icon="@mipmap/ic_launcher"
-		android:label="SKDEditor"
-		android:theme="@style/Theme.SKDEditor">
+		android:label="SKDEditor">
 
 		<provider
 			android:name="androidx.core.content.FileProvider"
-			android:authorities="com.chichar.skdeditor.fileprovider"
+			android:authorities="com.rosstonovsky.skdeditor.fileprovider"
 			android:exported="false"
 			android:grantUriPermissions="true">
 			<meta-data
@@ -30,12 +28,11 @@
 		</provider>
 
 		<activity
-			android:name=".activities.EditorActivity"
+			android:name="com.rosstonovsky.skdeditor.ui.activities.EditorAcivity"
 			android:exported="false"
-			android:parentActivityName=".activities.MenuActivity"
-			android:theme="@style/Theme.SKDEditor" />
+			android:parentActivityName="com.rosstonovsky.skdeditor.ui.activities.MainActivity" />
 		<activity
-			android:name=".activities.MenuActivity"
+			android:name="com.rosstonovsky.skdeditor.ui.activities.MainActivity"
 			android:exported="true"
 			android:launchMode="singleTask"
 			android:theme="@style/Theme.Splash">

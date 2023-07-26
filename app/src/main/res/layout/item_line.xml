@@ -17,7 +17,7 @@
         android:textColor="#aaa"
         tools:text="213" />
 
-    <com.chichar.skdeditor.codeeditor.RememberCursorEditText
+    <com.rosstonovsky.skdeditor.codeeditor.RememberCursorEditText
         android:layout_gravity="start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

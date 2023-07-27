@@ -3,7 +3,7 @@
     <style name="Theme.SKDE" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimationDuration">5000</item>
+        <item name="windowSplashScreenAnimationDuration">2000</item>
         <item name="windowSplashScreenBackground">@color/black</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_icon</item>
         <item name="postSplashScreenTheme">@style/Theme.SKDE</item>

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SKDE</string>
+    <string name="catbox_timeout">Timeout reached</string>
+    <string name="catbox_failed">app_process can\'t run on this device. Did you grant root permissions?</string>
 </resources>

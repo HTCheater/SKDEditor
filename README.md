@@ -1,3 +1,4 @@
+# The app is being rewritten, so any issues with SKDE 3 isn't going to be fixed
 # Soul Knight Data Editor
 ## Features
 ### File manager

@@ -1,6 +1,7 @@
 package com.chichar.skdeditor.utils;
 
-import java.util.regex.Pattern;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class JsonUtils {
 
@@ -45,15 +46,22 @@ public class JsonUtils {
 		}
 		return prettyJSONBuilder.toString();
 	}
-	
+
 	private static void appendIndentedNewLine(int indentLevel, StringBuilder stringBuilder) {
 		stringBuilder.append("\n");
 		for (int i = 0; i < indentLevel; i++) {
 			stringBuilder.append("  ");
 		}
 	}
-	
-	public static String minify(String json) {
-		return Pattern.compile("[\\n\\r]\\s+", 8).matcher(json).replaceAll("");
+
+	public static String minify(String string) {
+		try {
+			// may break if string is array
+			JSONObject json = new JSONObject(string);
+			return json.toString();
+		} catch (JSONException e) {
+			// String is not a JSON?
+			return string;
+		}
 	}
 }

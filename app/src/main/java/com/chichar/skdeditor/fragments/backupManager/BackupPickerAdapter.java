@@ -15,19 +15,14 @@ import com.chichar.skdeditor.R;
 
 import java.util.ArrayList;
 
-public class BackupPickerAdapter extends ArrayAdapter<String> {
+public class BackupPickerAdapter extends ArrayAdapter<PickerElement> {
 
-	private final ArrayList<String> checkedArr;
-	private final ArrayList<String> fullArr = new ArrayList<>();
+	private final ArrayList<PickerElement> fullArr;
 
-	public BackupPickerAdapter(@NonNull Context context, ArrayList<String> arrayList) {
-		super(context, 0, arrayList);
-		checkedArr = arrayList;
-		fullArr.addAll(arrayList);
-	}
-
-	public ArrayList<String> getCheckedArr() {
-		return checkedArr;
+	public BackupPickerAdapter(@NonNull Context context,
+	                           ArrayList<PickerElement> fullArr) {
+		super(context, 0, fullArr);
+		this.fullArr = fullArr;
 	}
 
 	@NonNull
@@ -39,17 +34,17 @@ public class BackupPickerAdapter extends ArrayAdapter<String> {
 			currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.item_backup_picker, parent, false);
 		}
 		View finalCurrentItemView = currentItemView;
-		((TextView) finalCurrentItemView.findViewById(R.id.filename)).setText(fullArr.get(position));
+		((TextView) finalCurrentItemView.findViewById(R.id.filename))
+				.setText(fullArr.get(position).getGameFile().getRealName());
 
-		((CheckBox) finalCurrentItemView.findViewById(R.id.check)).setOnCheckedChangeListener((buttonView, isChecked) -> {
-			String item = fullArr.get(position);
-			if (isChecked && !checkedArr.contains(item)) {
-				checkedArr.add(item);
-			}
-			if (!isChecked) {
-				checkedArr.remove(item);
-			}
-		});
+		CheckBox checkBox = finalCurrentItemView.findViewById(R.id.check);
+
+		checkBox.setOnCheckedChangeListener(null);
+		checkBox.setChecked(fullArr.get(position).isChecked());
+
+		checkBox.setOnCheckedChangeListener((buttonView, isChecked) ->
+				fullArr.get(position).setChecked(isChecked)
+		);
 		return currentItemView;
 	}
 }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,20 +15,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.chichar.skdeditor.Const;
+import com.chichar.skdeditor.IdStripper;
 import com.chichar.skdeditor.R;
 import com.chichar.skdeditor.activities.MenuActivity;
-import com.chichar.skdeditor.utils.CryptUtil;
+import com.chichar.skdeditor.gamefiles.GameFileResolver;
+import com.chichar.skdeditor.gamefiles.IGameFile;
 import com.chichar.skdeditor.utils.FileUtils;
-import com.chichar.skdeditor.utils.XmlUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.rosstonovsky.pussyBox.PussyFile;
 import com.rosstonovsky.pussyBox.PussyShell;
 
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.DataInputStream;
@@ -36,7 +34,6 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -45,35 +42,37 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-//Suppress warnings for Const.gameFilesPaths.get()
-@SuppressWarnings("ConstantConditions")
 public class BackupPicker extends BottomSheetDialogFragment {
+
+	private static final byte FILENAME_END = 47;
+
+	private static final byte[] SKDB_HEADER_V1 = {83, 75, 68, 97, 116, 97, 66, 97, 99, 107, 117, 112, 0};
+
+	// Older backups will have this name, which depended on package
+	private static final String OLD_PREF_NAME = "com.ChillyRoom.DungeonShooter.v2.playerprefs.xml";
 
 	private final String path;
 
 	private final BackupManagerAdapter backupManagerAdapter;
 
-	private final ArrayList<String> enabledOptions = new ArrayList<>();
+	private final ArrayList<PickerElement> pickerElements = new ArrayList<>();
 
-	//pass parameter to restore backup
+	// Pass path to restore backup
 	BackupPicker(String path) {
 		this.backupManagerAdapter = null;
 		assert path != null : "Backup Picker: path must not be null";
 		this.path = path;
 	}
 
-	//don't pass parameter to create new backup
+	// Create new backup
 	BackupPicker(BackupManagerAdapter backupManagerAdapter) {
 		this.backupManagerAdapter = backupManagerAdapter;
 		this.path = "";
@@ -96,43 +95,83 @@ public class BackupPicker extends BottomSheetDialogFragment {
 
 		executor.execute(() -> {
 			ListView picker = view.findViewById(R.id.picker);
-			if (!path.equals("")) {
+			if (!path.isEmpty()) {
 				try {
-					enabledOptions.addAll(getFileNames(path));
+					List<IGameFile> gameFiles = GameFileResolver.getGameFiles();
+					for (String s : getFileNames(path)) {
+						if (OLD_PREF_NAME.equals(s))
+							s = "playerprefs";
+						for (IGameFile gameFile : gameFiles)
+							if (gameFile.getName().equals(s)) {
+								pickerElements.add(new PickerElement(gameFile));
+							}
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 					if (e instanceof EOFException) {
 						handler.post(() -> Toast.makeText(requireContext(), "Invalid backup file", Toast.LENGTH_SHORT).show());
-					} else {
-						e.printStackTrace();
 					}
 				}
+				Collections.sort(pickerElements, (gf1, gf2) ->
+						gf1.getGameFile().getRealName()
+								.compareToIgnoreCase(gf2.getGameFile().getRealName()));
 			} else {
-				for (Map.Entry<String, String> entry : Const.gameFilesPaths.entrySet()) {
-					if (new PussyFile(entry.getValue()).exists()) {
-						enabledOptions.add(entry.getKey());
+				for (IGameFile gameFile : GameFileResolver.getGameFiles()) {
+					pickerElements.add(new PickerElement(gameFile));
+				}
+				Collections.sort(pickerElements, (gf1, gf2) -> {
+					int res = gf1.getGameFile().getName()
+							.compareToIgnoreCase(gf2.getGameFile().getName());
+					if (res != 0)
+						return res;
+					long length1 = new PussyFile(
+							gf1.getGameFile().getPath()
+					).length();
+					long length2 = new PussyFile(
+							gf2.getGameFile().getPath()
+					).length();
+					return Long.compare(length2, length1);
+				});
+				// Check the longest file among variants
+				// It is most likely to be the one the user wants to backup
+				for (int i = 1; i < pickerElements.size(); i++) {
+					Log.d("Remove garbage", "path: " + pickerElements.get(i - 1).getGameFile().getPath());
+					Log.d("Compare", pickerElements.get(i - 1).getGameFile().getRealName() + " and " + pickerElements.get(i).getGameFile().getRealName());
+					if (pickerElements.get(i - 1).getGameFile().getName()
+							.equals(pickerElements.get(i).getGameFile().getName())) {
+						pickerElements.get(i).setChecked(false);
+						continue;
 					}
+					Log.d("Compare", "not equal: " + pickerElements.get(i - 1).getGameFile().getName() + ", " + pickerElements.get(i).getGameFile().getName());
 				}
 			}
+			Collections.sort(pickerElements, (gf1, gf2) ->
+					gf1.getGameFile().getRealName()
+							.compareToIgnoreCase(gf2.getGameFile().getRealName())
+			);
 
 			handler.post(() -> {
-				if (enabledOptions.size() == 0) {
-					Toast.makeText(MenuActivity.menucontext, "Nothing to restore", Toast.LENGTH_SHORT).show();
+				if (pickerElements.size() == 0) {
+					Toast.makeText(MenuActivity.menuContext.get(), "Nothing to restore", Toast.LENGTH_SHORT).show();
 					super.dismiss();
 					return;
 				}
 				requireView().findViewById(R.id.loading).setVisibility(View.GONE);
 				requireView().findViewById(R.id.buttons).setVisibility(View.VISIBLE);
 
-				Collections.sort(enabledOptions, String::compareToIgnoreCase);
-				picker.setAdapter(new BackupPickerAdapter(requireContext(), enabledOptions));
+				picker.setAdapter(new BackupPickerAdapter(requireContext(), pickerElements));
 				requireView().findViewById(R.id.discard).setOnClickListener(v -> super.dismiss());
 				requireView().findViewById(R.id.restore).setOnClickListener(v -> {
 					View progressBar = view.findViewById(R.id.loading);
 					progressBar.setVisibility(View.VISIBLE);
-					ArrayList<String> checkedFiles = ((BackupPickerAdapter) picker.getAdapter()).getCheckedArr();
-					if (checkedFiles.size() == 0) {
-						Toast.makeText(requireContext(), "You must select items to backup", Toast.LENGTH_SHORT).show();
+					boolean shouldBackup = false;
+					for (PickerElement element : pickerElements)
+						if (element.isChecked()) {
+							shouldBackup = true;
+							break;
+						}
+					if (!shouldBackup) {
+						Toast.makeText(requireContext(), "You must select items to restore/backup", Toast.LENGTH_SHORT).show();
 						return;
 					}
 
@@ -146,7 +185,11 @@ public class BackupPicker extends BottomSheetDialogFragment {
 
 						executor1.execute(() -> {
 							try {
-								createBackup(checkedFiles);
+								List<IGameFile> files = new ArrayList<>();
+								for (PickerElement element : pickerElements)
+									if (element.isChecked())
+										files.add(element.getGameFile());
+								createBackup(files);
 							} catch (IOException | IllegalAccessException |
 							         ParserConfigurationException | SAXException e) {
 								e.printStackTrace();
@@ -163,7 +206,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 						executor1.execute(() -> {
 							try {
 								HashMap<String, Byte[]> backup1 = readBackup(path);
-								restoreBackup(checkedFiles, backup1);
+								restoreBackup(backup1);
 								handler1.post(() -> {
 									dismiss();
 									Toast.makeText(getContext(), "Successfully restored from the backup", Toast.LENGTH_SHORT).show();
@@ -196,10 +239,9 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		FileInputStream fileInputStream = new FileInputStream(path);
 		InflaterInputStream inflaterInputStream = new InflaterInputStream(fileInputStream);
 		DataInputStream inputStream = new DataInputStream(inflaterInputStream);
-		byte[] header = {83, 75, 68, 97, 116, 97, 66, 97, 99, 107, 117, 112, 0};
 		int headerIndex = 0;
-		while (headerIndex < header.length) {
-			if (header[headerIndex] != fileInputStream.read()) {
+		while (headerIndex < SKDB_HEADER_V1.length) {
+			if (SKDB_HEADER_V1[headerIndex] != fileInputStream.read()) {
 				throw new IOException("Invalid file");
 			}
 			headerIndex++;
@@ -216,14 +258,17 @@ public class BackupPicker extends BottomSheetDialogFragment {
 				throw new EOFException("File is corrupted");
 			}
 			b = (byte) r;
-			if (b != 47) {
+			if (b != FILENAME_END) {
 				sb.append((char) b);
 			}
-			if (b == 47) {
-				if (prev == 47) {
+			if (b == FILENAME_END) {
+				if (prev == FILENAME_END) {
 					break;
 				}
-				files.add(sb.toString());
+				String str = sb.toString();
+				if (OLD_PREF_NAME.equals(str))
+					str = "playerprefs";
+				files.add(str);
 				sb.delete(0, sb.length());
 			}
 			prev = b;
@@ -247,10 +292,10 @@ public class BackupPicker extends BottomSheetDialogFragment {
 	private List<String> getFileNames(String path) throws IOException {
 		FileInputStream fileInputStream = new FileInputStream(path);
 		DataInputStream inputStream = new DataInputStream(fileInputStream);
-		byte[] header = {83, 75, 68, 97, 116, 97, 66, 97, 99, 107, 117, 112, 0};
+
 		int headerIndex = 0;
-		while (headerIndex < header.length) {
-			if (header[headerIndex] != fileInputStream.read()) {
+		while (headerIndex < SKDB_HEADER_V1.length) {
+			if (SKDB_HEADER_V1[headerIndex] != fileInputStream.read()) {
 				throw new IOException("Invalid file");
 			}
 			headerIndex++;
@@ -261,11 +306,11 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		byte b;
 		while (true) {
 			b = inputStream.readByte();
-			if (b != 47) {
+			if (b != FILENAME_END) {
 				sb.append((char) b);
 			}
-			if (b == 47) {
-				if (prev == 47) {
+			if (b == FILENAME_END) {
+				if (prev == FILENAME_END) {
 					break;
 				}
 				files.add(sb.toString());
@@ -278,23 +323,32 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		return files;
 	}
 
-	private void restoreBackup(ArrayList<String> checkedFiles, HashMap<String, Byte[]> backup) throws IOException {
+	private void restoreBackup(HashMap<String, Byte[]> backup) throws IOException {
 		new PussyShell().cmd(PussyShell.getToyboxPath() + "killall " + Const.pkg).exec();
 
-		for (Map.Entry<String, Byte[]> entry : backup.entrySet()) {
-			if (!checkedFiles.contains(entry.getKey())) {
+		for (PickerElement element : pickerElements) {
+			if (!element.isChecked())
+				continue;
+			// Should never happen
+			if (!backup.containsKey(element.getGameFile().getName())) {
+				Log.d("Backup", "error: file not found in backup" + element.getGameFile().getName());
 				continue;
 			}
-			byte[] bytes = new byte[entry.getValue().length];
-			for (int i = 0; i < entry.getValue().length; i++) {
-				bytes[i] = entry.getValue()[i];
+			Log.d("Backup", "Restoring " + element.getGameFile().getName());
+
+			Byte[] backedUp = backup.get(element.getGameFile().getName());
+			if (backedUp == null)
+				continue;
+			byte[] bytes = new byte[backedUp.length];
+			for (int i = 0; i < backedUp.length; i++) {
+				bytes[i] = backedUp[i];
 			}
-			if (!Objects.equals(entry.getKey(), "battles.data") &&
-					!Objects.equals(entry.getKey(), "game.data") &&
-					!Objects.equals(entry.getKey(), "com.ChillyRoom.DungeonShooter.v2.playerprefs.xml")) {
+			if (!element.getGameFile().getName().startsWith("battle") &&
+					!Objects.equals(element.getGameFile().getName(), "game.data") &&
+					!Objects.equals(element.getGameFile().getName(), "playerprefs")) {
 				bytes = Base64.encode(bytes, android.util.Base64.NO_WRAP);
 			}
-			PussyFile pussyFile = new PussyFile(Const.gameFilesPaths.get(entry.getKey()));
+			PussyFile pussyFile = new PussyFile(element.getGameFile().getPath());
 			FileOutputStream outputStream = new FileOutputStream(pussyFile.getFile());
 			outputStream.write(bytes);
 			outputStream.close();
@@ -302,7 +356,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		}
 	}
 
-	private void createBackup(ArrayList<String> checkedFiles) throws IOException, IllegalAccessException, ParserConfigurationException, SAXException {
+	private void createBackup(List<IGameFile> checkedFiles) throws IOException, IllegalAccessException, ParserConfigurationException, SAXException {
 		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.getDefault());
 		String fileName = dateFormat.format(new Date())
 				.replace('.', '-')
@@ -311,77 +365,58 @@ public class BackupPicker extends BottomSheetDialogFragment {
 		FileOutputStream fileOutputStream = new FileOutputStream(requireContext().getFilesDir().getAbsolutePath() + "/backups/" + fileName + ".skdb");
 		DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(fileOutputStream);
 		DataOutputStream outputStream = new DataOutputStream(deflaterOutputStream);
-		//length is 13
-		fileOutputStream.write(new byte[]{83, 75, 68, 97, 116, 97, 66, 97, 99, 107, 117, 112, 0});
-		for (String s : checkedFiles) {
-			fileOutputStream.write(s.getBytes(StandardCharsets.UTF_8));
-			fileOutputStream.write(47);
+		fileOutputStream.write(SKDB_HEADER_V1);
+		for (IGameFile gameFile : checkedFiles) {
+			fileOutputStream.write(gameFile.getName().getBytes(StandardCharsets.UTF_8));
+			fileOutputStream.write(FILENAME_END);
 		}
-		fileOutputStream.write(47);
+		fileOutputStream.write(FILENAME_END);
 		fileOutputStream.flush();
 
-		for (String s : checkedFiles) {
-			PussyFile pussyFile = new PussyFile(Const.gameFilesPaths.get(s));
-			byte[] bytes = FileUtils.readAllBytes(pussyFile.getFile().getAbsolutePath());
+		for (IGameFile gameFile : checkedFiles) {
+			PussyFile pussyFile = new PussyFile(gameFile.getPath());
+			byte[] bytes = null;
 
-			//remove any account information to prevent account id leak
-			if (Objects.equals(s, "com.ChillyRoom.DungeonShooter.v2.playerprefs.xml")) {
-				String prefs = new String(bytes);
-
-				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder builder = factory.newDocumentBuilder();
-				Document document = builder.parse(new InputSource(new StringReader(prefs)));
-				NodeList strings = document.getElementsByTagName("string");
-				for (int index = 0; index < strings.getLength(); index++) {
-					String name = "";
-					if (strings.item(index).getAttributes() != null &&
-							strings.item(index).getAttributes().getNamedItem("name") != null &&
-							strings.item(index).getAttributes().getNamedItem("name").getNodeValue() != null) {
-						name = strings.item(index).getAttributes().getNamedItem("name").getNodeValue();
+			//remove any account information
+			switch (gameFile.getName()) {
+				case "playerprefs":
+					try {
+						bytes = IdStripper.stripPrefs(pussyFile.getFile()).getBytes(StandardCharsets.UTF_8);
+					} catch (IOException | JSONException e) {
+						e.printStackTrace();
 					}
-					if (name.equals("cloudSaveId") ||
-							name.equals("account_enter_game_count_today") ||
-							name.equals("accountLoginRecords") ||
-							name.contains("UsedAccounts") ||
-							name.contains("unity.player_session") ||
-							name.equals("unity.cloud_userid") ||
-							name.contains("SdkStateCache")) {
-						strings.item(index).getParentNode().removeChild(strings.item(index));
+					break;
+				case "setting.data":
+					try {
+						bytes = IdStripper.stripSettings(pussyFile.getFile(), gameFile);
+					} catch (IOException | JSONException e) {
+						e.printStackTrace();
 					}
-				}
-				bytes = XmlUtils.toString(document).getBytes(StandardCharsets.UTF_8);
-			}
-			if (Objects.equals(s, "setting.data")) {
-				try {
-					JSONObject settings = new JSONObject(CryptUtil.decrypt(bytes, "setting.data"));
-					settings.remove("account2Birthday");
-					settings.remove("account2ChangeCount");
-					settings.remove("account2Name");
-					settings.remove("account2PersonId");
-					settings.remove("account2ThisDayTime");
-					settings.remove("account2ResetAdditionDay");
-					settings.remove("account2ResetPurchaseDay");
-					settings.remove("account2PurchaseTotal");
-					settings.remove("account2PurchaseTotal");
-					settings.remove("PlayerBirthNameDatas");
-					settings.remove("HasSolveOldRealNameData2NewData");
-					byte[] enc = CryptUtil.encrypt(settings.toString(), "setting.data");
+					bytes = Base64.decode(bytes, android.util.Base64.NO_WRAP);
+					break;
+				case "statistic.data":
+					bytes = IdStripper.stripStatistics(pussyFile.getFile(), gameFile);
+					String statistics = gameFile.decrypt(bytes);
+					//can't parse statistics_data.data because some symbols in emails aren't escaped
+					statistics = statistics.replaceFirst(",[\\n\\r].*?\"fixGP_Test\":\\d+", "");
+					byte[] enc = gameFile.encrypt(statistics);
 					bytes = Base64.decode(enc, android.util.Base64.NO_WRAP);
-				} catch (JSONException e) {
-					Toast.makeText(requireContext(), "Failed to remove ID from backup", Toast.LENGTH_SHORT).show();
-				}
+					break;
+				case "item_data.data":
+				case "season_data.data":
+				case "task.data":
+					bytes = FileUtils.readAllBytes(pussyFile.getFile().getAbsolutePath());
+					bytes = Base64.decode(bytes, android.util.Base64.NO_WRAP);
+					break;
+				default:
+					bytes = FileUtils.readAllBytes(pussyFile.getFile().getAbsolutePath());
+					break;
 			}
-			if (Objects.equals(s, "statistic.data")) {
-				String statistics = CryptUtil.decrypt(bytes, "statistic.data");
-				//can't parse statistics_data.data because some symbols in emails aren't escaped
-				statistics = statistics.replaceFirst(",[\\n\\r].*?\"fixGP_Test\":\\d+", "");
-				byte[] enc = CryptUtil.encrypt(statistics, "statistic.data");
-				bytes = Base64.decode(enc, android.util.Base64.NO_WRAP);
-			}
-			if (Objects.equals(s, "item_data.data") ||
-					Objects.equals(s, "season_data.data") ||
-					Objects.equals(s, "task.data")) {
-				bytes = Base64.decode(bytes, android.util.Base64.NO_WRAP);
+			if (bytes == null) {
+				outputStream.close();
+				deflaterOutputStream.close();
+				fileOutputStream.close();
+				throw new RuntimeException("bytes length is 0");
 			}
 			outputStream.writeInt(bytes.length);
 			outputStream.write(bytes);
@@ -393,7 +428,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 	}
 
 	private void update() {
-		assert backupManagerAdapter != null;
-		backupManagerAdapter.update();
+		if (backupManagerAdapter != null)
+			backupManagerAdapter.update();
 	}
 }

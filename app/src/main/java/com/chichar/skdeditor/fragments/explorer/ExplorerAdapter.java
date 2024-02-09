@@ -1,7 +1,5 @@
 package com.chichar.skdeditor.fragments.explorer;
 
-import static com.chichar.skdeditor.fragments.explorer.ExplorerFragment.openInExplorer;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +12,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.chichar.skdeditor.R;
-import com.rosstonovsky.pussyBox.PussyFile;
 
 import java.util.ArrayList;
 
 public class ExplorerAdapter extends ArrayAdapter<ExplorerFile> {
-	public ExplorerAdapter(@NonNull Context context, ArrayList<ExplorerFile> arrayList) {
+	private final IOnItemSelected onItemSelected;
+
+	public ExplorerAdapter(@NonNull Context context, ArrayList<ExplorerFile> arrayList, IOnItemSelected onItemSelected) {
 		super(context, 0, arrayList);
+		this.onItemSelected = onItemSelected;
 	}
 
 	@NonNull
@@ -31,27 +31,18 @@ public class ExplorerAdapter extends ArrayAdapter<ExplorerFile> {
 			currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.item_explorer, parent, false);
 		}
 		ExplorerFile pussyFile = getItem(position);
-		TextView filename = currentItemView.findViewById(R.id.filename);
-		currentItemView.setOnClickListener(v -> onItemSelected(pussyFile));
-		if (pussyFile == null) {
-			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_baseline_folder_24);
-			filename.setText("...");
+		if (pussyFile == null)
 			return currentItemView;
-		}
+		TextView filename = currentItemView.findViewById(R.id.filename);
+		currentItemView.setOnClickListener(v -> onItemSelected.onItemSelected(pussyFile.getPath()));
 		filename.setText(pussyFile.getName());
-		if (pussyFile.isDirectory()) {
-			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_baseline_folder_24);
-		}
-		if (pussyFile.isLink()) {
-			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_round_shortcut_24);
-		}
 		if (pussyFile.isFile()) {
 			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_round_file_24);
+		} else if (pussyFile.isDirectory()) {
+			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_baseline_folder_24);
+		} else if (pussyFile.isLink()) {
+			((ImageView) currentItemView.findViewById(R.id.fileImage)).setImageResource(R.drawable.ic_round_shortcut_24);
 		}
 		return currentItemView;
-	}
-
-	private void onItemSelected(ExplorerFile explorerFile) {
-		openInExplorer(explorerFile.getPath());
 	}
 }

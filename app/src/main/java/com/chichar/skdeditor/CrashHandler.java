@@ -1,6 +1,6 @@
 package com.chichar.skdeditor;
 
-import static com.chichar.skdeditor.activities.MenuActivity.menucontext;
+import static com.chichar.skdeditor.activities.MenuActivity.menuContext;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -65,7 +65,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 			fileWriter2.append(currentStacktrace);
 			fileWriter2.flush();
 			fileWriter2.close();
-			SharedPreferences.Editor editor = menucontext.getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE).edit();
+			SharedPreferences.Editor editor = menuContext.get().getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE).edit();
 			editor.putBoolean("crashed", true);
 			editor.apply();
 		} catch (Exception e) {

@@ -35,7 +35,8 @@ import androidx.core.content.FileProvider;
 
 import com.chichar.skdeditor.R;
 import com.chichar.skdeditor.codeeditor.CodeEditor;
-import com.chichar.skdeditor.utils.CryptUtil;
+import com.chichar.skdeditor.gamefiles.GameFileResolver;
+import com.chichar.skdeditor.gamefiles.IGameFile;
 import com.chichar.skdeditor.utils.FileUtils;
 import com.rosstonovsky.pussyBox.PussyFile;
 
@@ -55,6 +56,7 @@ public class EditorActivity extends AppCompatActivity {
 	private File file;
 	private boolean decrypted = false;
 	private boolean hideMenu = true;
+	private IGameFile gameFile;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class EditorActivity extends AppCompatActivity {
 			Toast.makeText(this, "Unable to open file", Toast.LENGTH_SHORT).show();
 			finish();
 		}
+		gameFile = GameFileResolver.getGameFile(pussyFile);
 		FileUtils.readFile(file.getAbsolutePath(), StandardCharsets.UTF_8);
 		lastModified = file.lastModified();
 
@@ -169,7 +172,7 @@ public class EditorActivity extends AppCompatActivity {
 			try {
 				byte[] data = FileUtils.readAllBytes(file.getAbsolutePath());
 				if (!decrypted) {
-					data = CryptUtil.decrypt(data, file.getName()).getBytes(StandardCharsets.UTF_8);
+					data = gameFile.decrypt(data).getBytes(StandardCharsets.UTF_8);
 					decrypted = true;
 					FileUtils.writeBytes(file, data);
 				}
@@ -200,7 +203,7 @@ public class EditorActivity extends AppCompatActivity {
 		Handler handler = new Handler(Looper.myLooper());
 		String text = ((CodeEditor) findViewById(R.id.editor)).getText();
 		executor.execute(() -> {
-			FileUtils.writeBytes(file, CryptUtil.encrypt(text, file.getName()));
+			FileUtils.writeBytes(file, gameFile.encrypt(text));
 			try {
 				pussyFile.commit();
 			} catch (IOException e) {
@@ -300,22 +303,22 @@ public class EditorActivity extends AppCompatActivity {
 			searchbar.animate().scaleY(1f).setDuration(200)
 					.setListener(new Animator.AnimatorListener() {
 						@Override
-						public void onAnimationCancel(Animator animator) {
+						public void onAnimationCancel(@NonNull Animator animator) {
 
 						}
 
 						@Override
-						public void onAnimationRepeat(Animator animator) {
+						public void onAnimationRepeat(@NonNull Animator animator) {
 
 						}
 
 						@Override
-						public void onAnimationEnd(Animator animator) {
+						public void onAnimationEnd(@NonNull Animator animator) {
 
 						}
 
 						@Override
-						public void onAnimationStart(Animator animator) {
+						public void onAnimationStart(@NonNull Animator animator) {
 							searchbar.setVisibility(VISIBLE);
 						}
 					})
@@ -327,22 +330,22 @@ public class EditorActivity extends AppCompatActivity {
 			searchbar.animate().scaleY(0f).setDuration(200).setListener(new Animator.AnimatorListener() {
 
 						@Override
-						public void onAnimationStart(Animator animator) {
+						public void onAnimationStart(@NonNull Animator animator) {
 
 						}
 
 						@Override
-						public void onAnimationCancel(Animator animator) {
+						public void onAnimationCancel(@NonNull Animator animator) {
 
 						}
 
 						@Override
-						public void onAnimationRepeat(Animator animator) {
+						public void onAnimationRepeat(@NonNull Animator animator) {
 
 						}
 
 						@Override
-						public void onAnimationEnd(Animator animator) {
+						public void onAnimationEnd(@NonNull Animator animator) {
 							searchbar.setVisibility(GONE);
 						}
 					})

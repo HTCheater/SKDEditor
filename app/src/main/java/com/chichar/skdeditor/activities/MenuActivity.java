@@ -42,6 +42,7 @@ import com.chichar.skdeditor.fragments.SettingsFragment;
 import com.chichar.skdeditor.fragments.SpooferFragment;
 import com.chichar.skdeditor.fragments.backupManager.BackupManagerFragment;
 import com.chichar.skdeditor.fragments.explorer.ExplorerFragment;
+import com.chichar.skdeditor.gamefiles.GameFileResolver;
 import com.chichar.skdeditor.utils.FileUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -53,13 +54,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class MenuActivity extends AppCompatActivity {
 	@SuppressLint("StaticFieldLeak")
-	public static Context menucontext;
+	public static WeakReference<MenuActivity> menuContext;
 	private ImageView menuIcon;
 	private static boolean splashShown = false;
 	public static boolean browseStorage = false;
@@ -77,11 +81,11 @@ public class MenuActivity extends AppCompatActivity {
 				f.delete();
 			}
 		}
-		menucontext = this;
+		menuContext = new WeakReference<>(this);
 		Handler handler = new Handler(Looper.myLooper());
 		try {
 			PussyShell.init(() -> handler.post(() ->
-					Toast.makeText(menucontext,
+					Toast.makeText(menuContext.get(),
 					"There was an error while executing command, logfile located in /sdcard/SKDE/Log/",
 					Toast.LENGTH_LONG).show()
 			));
@@ -163,12 +167,16 @@ public class MenuActivity extends AppCompatActivity {
 				backupsFolder.mkdir();
 			}
 
+			GameFileResolver.resolveFiles();
+
 			Uri uri = getIntent().getData();
-			if (uri != null) {
+			if (uri != null && uri.getPath() != null && getIntent().getAction() != null) {
 				if (uri.getPath().endsWith(".skdb") && getIntent().getAction().equals(Intent.ACTION_VIEW)) {
 					try {
 						InputStream inputStream = getContentResolver().openInputStream(uri);
-						StringBuilder path = new StringBuilder(menucontext.getFilesDir().getAbsolutePath() + "/backups/" + uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1, uri.getPath().lastIndexOf('.')));
+						if (inputStream == null)
+							throw new IOException("Failed to open input stream from uri");
+						StringBuilder path = new StringBuilder(menuContext.get().getFilesDir().getAbsolutePath() + "/backups/" + uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1, uri.getPath().lastIndexOf('.')));
 						for (int i = 1; new File(path + ".skdb").exists(); i++) {
 							if (path.toString().lastIndexOf('_') != -1) {
 								path.substring(0, path.toString().lastIndexOf('_'));
@@ -176,11 +184,11 @@ public class MenuActivity extends AppCompatActivity {
 							path.append("_").append(i);
 						}
 						path.append(".skdb");
-						OutputStream outputStream = new FileOutputStream(path.toString());
+						OutputStream outputStream = Files.newOutputStream(Paths.get(path.toString()));
 						FileUtils.copyStream(inputStream, outputStream);
-						Toast.makeText(menucontext, "Successfully imported backup", Toast.LENGTH_SHORT).show();
+						Toast.makeText(menuContext.get(), "Successfully imported backup", Toast.LENGTH_SHORT).show();
 					} catch (IOException e) {
-						Toast.makeText(menucontext, "There was an error while importing backup", Toast.LENGTH_SHORT).show();
+						Toast.makeText(menuContext.get(), "There was an error while importing backup", Toast.LENGTH_SHORT).show();
 						e.printStackTrace();
 					}
 				} else if (!uri.getPath().endsWith(".skdb")) {
@@ -196,20 +204,20 @@ public class MenuActivity extends AppCompatActivity {
 			vpa.start();
 			vpa.setListener(new Animator.AnimatorListener() {
 				@Override
-				public void onAnimationStart(Animator animation) {
+				public void onAnimationStart(@NonNull Animator animation) {
 				}
 
 				@Override
-				public void onAnimationCancel(Animator animation) {
+				public void onAnimationCancel(@NonNull Animator animation) {
 				}
 
 				@Override
-				public void onAnimationRepeat(Animator animation) {
+				public void onAnimationRepeat(@NonNull Animator animation) {
 				}
 
 				@SuppressLint("SetTextI18n")
 				@Override
-				public void onAnimationEnd(Animator animator) {
+				public void onAnimationEnd(@NonNull Animator animator) {
 					final Handler handler = new Handler();
 					handler.postDelayed(() -> {
 						iconView.setVisibility(View.GONE);
@@ -265,6 +273,10 @@ public class MenuActivity extends AppCompatActivity {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		try {
+			is.close();
+		} catch (IOException ignored) {
 		}
 
 		if (!(out.setExecutable(true, false) &&
@@ -424,7 +436,7 @@ public class MenuActivity extends AppCompatActivity {
 			imageView.setLayoutParams(layoutParams);
 			menuIcon = imageView;
 			menu.getItem(0).setActionView(imageView);
-			menu.getItem(0).getActionView().startAnimation(anim);
+			imageView.startAnimation(anim);
 			return true;
 		}
 		menu.getItem(0).setVisible(false);
@@ -443,7 +455,7 @@ public class MenuActivity extends AppCompatActivity {
 		imageView.setLayoutParams(layoutParams);
 		menuIcon = imageView;
 		menu.getItem(1).setActionView(imageView);
-		menu.getItem(1).getActionView().startAnimation(anim);
+		imageView.startAnimation(anim);
 		return true;
 	}
 
@@ -558,7 +570,7 @@ public class MenuActivity extends AppCompatActivity {
 					setupMenu(false, x, y);
 					return;
 				}
-				Toast.makeText(menucontext, "Please, grant requested permissions", Toast.LENGTH_SHORT).show();
+				Toast.makeText(menuContext.get(), "Please, grant requested permissions", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override

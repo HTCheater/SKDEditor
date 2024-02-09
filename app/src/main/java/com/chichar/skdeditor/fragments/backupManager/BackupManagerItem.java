@@ -6,7 +6,6 @@ public class BackupManagerItem {
 	private final String details;
 	private final boolean folder;
 
-	// create constructor to set the values for all the parameters of the each single view
 	public BackupManagerItem(String path, String name, String details) {
 		this.name = name.replaceFirst("[.][^.]+$", "");
 		this.path = path;

@@ -1,6 +1,6 @@
 package com.chichar.skdeditor.fragments;
 
-import static com.chichar.skdeditor.activities.MenuActivity.menucontext;
+import static com.chichar.skdeditor.activities.MenuActivity.menuContext;
 import static com.rosstonovsky.abxUtils.ABXWriter.ATTRIBUTE;
 import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_BOOLEAN_FALSE;
 import static com.rosstonovsky.abxUtils.ABXWriter.TYPE_BOOLEAN_TRUE;
@@ -31,8 +31,10 @@ import androidx.fragment.app.Fragment;
 
 import com.chichar.skdeditor.Const;
 import com.chichar.skdeditor.CrashHandler;
+import com.chichar.skdeditor.IdStripper;
 import com.chichar.skdeditor.R;
-import com.chichar.skdeditor.utils.CryptUtil;
+import com.chichar.skdeditor.gamefiles.GameFileResolver;
+import com.chichar.skdeditor.gamefiles.IGameFile;
 import com.chichar.skdeditor.utils.FileUtils;
 import com.chichar.skdeditor.utils.XmlUtils;
 import com.google.android.material.button.MaterialButton;
@@ -44,7 +46,6 @@ import com.rosstonovsky.pussyBox.PussyShell;
 import com.rosstonovsky.pussyBox.PussyUser;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -54,14 +55,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -99,11 +99,11 @@ public class SpooferFragment extends Fragment {
 					clearAccount();
 					handler.post(this::readData);
 				} catch (ParserConfigurationException | SAXException e) {
-					handler.post(() -> Toast.makeText(menucontext, "Failed to parse preferences", Toast.LENGTH_SHORT).show());
+					handler.post(() -> Toast.makeText(menuContext.get(), "Failed to parse preferences", Toast.LENGTH_SHORT).show());
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (JSONException e) {
-					handler.post(() -> Toast.makeText(menucontext, "Failed to parse JSON", Toast.LENGTH_SHORT).show());
+					handler.post(() -> Toast.makeText(menuContext.get(), "Failed to parse JSON", Toast.LENGTH_SHORT).show());
 				}
 			});
 		});
@@ -155,13 +155,17 @@ public class SpooferFragment extends Fragment {
 		executor.execute(() -> {
 			String accountId = "Failed to get the id";
 			androidId = "Failed to get the id";
-			PussyFile pussyPrefs = new PussyFile(Const.gameFilesPaths.get("com.ChillyRoom.DungeonShooter.v2.playerprefs.xml"));
-			if (pussyPrefs.exists()) {
+			String path = null;
+			for (IGameFile gameFile : GameFileResolver.getGameFiles())
+				if (gameFile.getName().equals("playeprefs"))
+					path = gameFile.getPath();
+			PussyFile pussyPrefs;
+			if (path != null && (pussyPrefs = new PussyFile(path)).exists()) {
 				String prefs = "";
 				try {
 					prefs = FileUtils.readFile(pussyPrefs.getFile().getAbsolutePath(), StandardCharsets.UTF_8);
 				} catch (IOException e) {
-					handler.post(() -> Toast.makeText(menucontext, "Failed to read preferences", Toast.LENGTH_SHORT).show());
+					handler.post(() -> Toast.makeText(menuContext.get(), "Failed to read preferences", Toast.LENGTH_SHORT).show());
 				}
 				Pattern pattern = Pattern.compile("name=\"cloudSaveId\">(.*?)</");
 				Matcher matcher = pattern.matcher(prefs);
@@ -187,7 +191,7 @@ public class SpooferFragment extends Fragment {
 				try {
 					PussyFile pussyFile = new PussyFile("/data/system/users/" + PussyUser.getId() + "/settings_ssaid.xml");
 					File file = pussyFile.getFile();
-					InputStream inputStream = new FileInputStream(file);
+					InputStream inputStream = Files.newInputStream(file.toPath());
 					ABXReader abxReader = new ABXReader();
 					abxReader.setInput(inputStream, StandardCharsets.UTF_8.name());
 
@@ -266,64 +270,33 @@ public class SpooferFragment extends Fragment {
 		});
 	}
 
-
 	private void clearAccount() throws ParserConfigurationException, IOException, SAXException, JSONException {
-		PussyFile pussyPrefs = new PussyFile(Const.gameFilesPaths.get("com.ChillyRoom.DungeonShooter.v2.playerprefs.xml"));
-		File prefsFile = pussyPrefs.getFile();
-		String prefs = FileUtils.readFile(prefsFile.getAbsolutePath(), StandardCharsets.UTF_8);
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document document = builder.parse(new InputSource(new StringReader(prefs)));
-		NodeList strings = document.getElementsByTagName("string");
-		for (int index = 0; index < strings.getLength(); index++) {
-			String name = "";
-			if (strings.item(index).getAttributes() != null &&
-					strings.item(index).getAttributes().getNamedItem("name") != null &&
-					strings.item(index).getAttributes().getNamedItem("name").getNodeValue() != null) {
-				name = strings.item(index).getAttributes().getNamedItem("name").getNodeValue();
-			}
-			if (name.equals("cloudSaveId") ||
-					name.equals("account_enter_game_count_today") ||
-					name.equals("accountLoginRecords") ||
-					name.contains("UsedAccounts") ||
-					name.contains("unity.player_session") ||
-					name.equals("unity.cloud_userid") ||
-					name.contains("SdkStateCache")) {
-				strings.item(index).getParentNode().removeChild(strings.item(index));
+		// There might be several same game files for different users,
+		// so we are looping through all of them
+		for (IGameFile gameFile : GameFileResolver.getGameFiles()) {
+			if (gameFile.getName().equals("playerprefs")) {
+				PussyFile pussyPrefs = new PussyFile(gameFile.getPath());
+				File prefsFile = pussyPrefs.getFile();
+				FileUtils.writeFile(prefsFile.getAbsolutePath(),
+						IdStripper.stripPrefs(prefsFile), StandardCharsets.UTF_8);
+				pussyPrefs.commit();
+
+			} else if (gameFile.getName().equals("setting.data")) {
+				PussyFile pussySettings = new PussyFile(gameFile.getPath());
+				File settingsFile = pussySettings.getFile();
+
+				FileUtils.writeBytes(settingsFile,
+						IdStripper.stripSettings(settingsFile, gameFile));
+				pussySettings.commit();
+			} else if (gameFile.getName().equals("statistic.data")) {
+				PussyFile pussyStatistics = new PussyFile(gameFile.getPath());
+				File statisticsFile = pussyStatistics.getFile();
+
+				FileUtils.writeBytes(statisticsFile,
+						IdStripper.stripStatistics(statisticsFile, gameFile));
+				pussyStatistics.commit();
 			}
 		}
-		prefs = XmlUtils.toString(document);
-		FileUtils.writeFile(prefsFile.getAbsolutePath(), prefs, StandardCharsets.UTF_8);
-		pussyPrefs.commit();
-
-		PussyFile pussySettings = new PussyFile(Const.gameFilesPaths.get("setting.data"));
-		File settingsFile = pussySettings.getFile();
-		byte[] settingsBytes = FileUtils.readAllBytes(settingsFile.getAbsolutePath());
-		JSONObject settings = new JSONObject(CryptUtil.decrypt(settingsBytes, "setting.data"));
-		settings.remove("account2Birthday");
-		settings.remove("account2ChangeCount");
-		settings.remove("account2Name");
-		settings.remove("account2PersonId");
-		settings.remove("account2ThisDayTime");
-		settings.remove("account2ResetAdditionDay");
-		settings.remove("account2ResetPurchaseDay");
-		settings.remove("account2PurchaseTotal");
-		settings.remove("account2PurchaseTotal");
-		settings.remove("PlayerBirthNameDatas");
-		settings.remove("HasSolveOldRealNameData2NewData");
-		byte[] enc = CryptUtil.encrypt(settings.toString(), "setting.data");
-		FileUtils.writeBytes(settingsFile, enc);
-		pussySettings.commit();
-
-		PussyFile pussyStatistics = new PussyFile(Const.gameFilesPaths.get("statistic.data"));
-		File statisticsFile = pussyStatistics.getFile();
-		byte[] statisticsBytes = FileUtils.readAllBytes(statisticsFile.getAbsolutePath());
-		String statistics = CryptUtil.decrypt(statisticsBytes, "statistic.data");
-		//can't parse statistics_data.data because some symbols in emails aren't escaped
-		statistics = statistics.replaceFirst(",[\\n\\r].*?\"fixGP_Test\":\\d+", "");
-		enc = CryptUtil.encrypt(statistics, "statistic.data");
-		FileUtils.writeBytes(statisticsFile, enc);
-		pussyStatistics.commit();
 	}
 
 	private void spoofAndroidId() throws IOException, XmlPullParserException, ParserConfigurationException, SAXException {
@@ -332,12 +305,13 @@ public class SpooferFragment extends Fragment {
 
 			File file = pussyFile.getFile();
 			ABXReader abxReader = new ABXReader();
-			InputStream inputStream = new FileInputStream(file);
+			Path path = file.toPath();
+			InputStream inputStream = Files.newInputStream(path);
 			abxReader.setInput(inputStream, StandardCharsets.UTF_8.name());
 
 			File abx = new File(requireContext().getCacheDir() + "/ssaid.abx");
 			ABXWriter abxWriter = new ABXWriter();
-			OutputStream outputStream = new FileOutputStream(abx);
+			OutputStream outputStream = Files.newOutputStream(abx.toPath());
 			abxWriter.setOutput(outputStream, StandardCharsets.UTF_8.name());
 
 			abxWriter.startDocument(null, null);
@@ -360,7 +334,7 @@ public class SpooferFragment extends Fragment {
 							case TYPE_BOOLEAN_FALSE:
 								abxWriter.attributeBoolean(null, attribute.name, false);
 								break;
-							case TYPE_STRING:
+							case TYPE_STRING: {
 								attribute.valueString = abxReader.mIn.readUTF();
 								String a = attribute.valueString;
 								if (Objects.equals(a, androidId) ||
@@ -371,9 +345,10 @@ public class SpooferFragment extends Fragment {
 								}
 								abxWriter.attribute(null, attribute.name, a);
 								break;
-							case TYPE_STRING_INTERNED:
+							}
+							case TYPE_STRING_INTERNED: {
 								attribute.valueString = abxReader.mIn.readInternedUTF();
-								a = attribute.getValueString();
+								String a = attribute.getValueString();
 								if (Objects.equals(a, androidId) ||
 										Objects.equals(a, defAndroidId)) {
 									a = UUID.randomUUID().toString()
@@ -382,20 +357,23 @@ public class SpooferFragment extends Fragment {
 								}
 								abxWriter.attributeInterned(null, attribute.name, a);
 								break;
-							case TYPE_BYTES_HEX:
+							}
+							case TYPE_BYTES_HEX: {
 								int len = abxReader.mIn.readUnsignedShort();
 								byte[] res = new byte[len];
 								abxReader.mIn.readFully(res);
 								attribute.valueBytes = res;
 								abxWriter.attributeBytesHex(null, attribute.name, attribute.getValueBytesHex());
 								break;
-							case TYPE_BYTES_BASE64:
-								len = abxReader.mIn.readUnsignedShort();
-								res = new byte[len];
+							}
+							case TYPE_BYTES_BASE64: {
+								int len = abxReader.mIn.readUnsignedShort();
+								byte[] res = new byte[len];
 								abxReader.mIn.readFully(res);
 								attribute.valueBytes = res;
 								abxWriter.attributeBytesBase64(null, attribute.name, attribute.getValueBytesBase64());
 								break;
+							}
 							case TYPE_INT:
 								attribute.valueInt = abxReader.mIn.readInt();
 								abxWriter.attributeInt(null, attribute.name, attribute.getValueInt());
@@ -500,7 +478,7 @@ public class SpooferFragment extends Fragment {
 			}
 			inputStream.close();
 			outputStream.close();
-			Files.delete(file.toPath());
+			Files.delete(path);
 			if (abx.renameTo(file)) {
 				pussyFile.commit();
 				return;

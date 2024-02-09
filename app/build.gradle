@@ -4,16 +4,16 @@ plugins {
 }
 
 android {
-	compileSdk 33
+	compileSdk 34
 
 	defaultConfig {
 		applicationId "com.chichar.skdeditor"
 		minSdk 21
-		targetSdk 33
+		targetSdk 34
 		versionCode 36
-		versionName "3.6"
-		resConfigs 'en'
-		resValue "string", "version", versionName
+		versionName "3.7"
+        resourceConfigurations += ['en']
+        resValue "string", "version", versionName
 	}
 
 	buildTypes {
@@ -34,9 +34,9 @@ android {
 }
 
 dependencies {
-	implementation 'androidx.core:core-splashscreen:1.0.0'
+	implementation 'androidx.core:core-splashscreen:1.0.1'
 	implementation 'androidx.appcompat:appcompat:1.6.1'
 	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-	implementation 'com.google.android.material:material:1.8.0'
-	implementation 'androidx.preference:preference:1.1.0'
+	implementation 'com.google.android.material:material:1.11.0'
+	implementation 'androidx.preference:preference:1.2.1'
 }

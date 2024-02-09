@@ -1,32 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
 	android:id="@+id/bottomsheet"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:orientation="vertical"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
-
-	<ListView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		android:id="@+id/picker" />
 
 	<LinearLayout
 		android:id="@+id/buttons"
 		android:gravity="center"
+		android:background="@color/black"
+		android:orientation="horizontal"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:layout_constraintTop_toBottomOf="@id/picker"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent">
+		android:layout_height="wrap_content">
 
 		<TextView
 			android:id="@+id/discard"
-			android:paddingStart="64dp"
-			android:paddingEnd="64dp"
 			android:text="Cancel"
 			android:textAllCaps="true"
 			android:textStyle="bold"
@@ -37,9 +27,8 @@
 
 		<TextView
 			android:id="@+id/restore"
-			android:paddingStart="64dp"
-			android:paddingEnd="64dp"
 			android:text="OK"
+			android:layout_marginStart="64dp"
 			android:textAllCaps="true"
 			android:textStyle="bold"
 			android:textColor="@color/purple_200"
@@ -49,7 +38,13 @@
 
 	</LinearLayout>
 
-	<androidx.appcompat.widget.LinearLayoutCompat
+	<ListView
+		android:nestedScrollingEnabled="false"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/picker" />
+
+	<LinearLayout
 		android:visibility="gone"
 		android:id="@+id/loading"
 		android:elevation="99dp"
@@ -69,5 +64,5 @@
 			android:indeterminateTint="@color/purple_200"
 			android:layout_width="70dp"
 			android:layout_height="70dp" />
-	</androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.constraintlayout.widget.ConstraintLayout>
+	</LinearLayout>
+</LinearLayout>

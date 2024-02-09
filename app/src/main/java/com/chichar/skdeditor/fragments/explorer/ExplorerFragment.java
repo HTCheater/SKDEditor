@@ -19,6 +19,8 @@ import androidx.fragment.app.Fragment;
 import com.chichar.skdeditor.Const;
 import com.chichar.skdeditor.R;
 import com.chichar.skdeditor.activities.EditorActivity;
+import com.chichar.skdeditor.gamefiles.GameFileResolver;
+import com.chichar.skdeditor.gamefiles.IGameFile;
 import com.rosstonovsky.pussyBox.PussyFile;
 import com.rosstonovsky.pussyBox.PussyUser;
 
@@ -28,6 +30,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class ExplorerFragment extends Fragment {
+	private static final List<String> gameFiles = new ArrayList<String>() {
+		{
+			add("files");
+			add("shared_prefs");
+		}
+	};
+
 	@SuppressLint("StaticFieldLeak")
 	private static Context explorerContext;
 	@SuppressLint("StaticFieldLeak")
@@ -38,7 +47,7 @@ public class ExplorerFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 	}
 
-	private static View view;
+	private View view;
 
 	@SuppressLint("SdCardPath")
 	@Nullable
@@ -65,7 +74,7 @@ public class ExplorerFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 	}
 
-	public static void openInExplorer(String path) {
+	public void openInExplorer(String path) {
 		SharedPreferences prefs = explorerContext.getSharedPreferences("com.chichar.skdeditor", Context.MODE_PRIVATE);
 		boolean clearGarbage = prefs.getBoolean("clearGarbage", true);
 		ArrayList<ExplorerFile> explorerFiles = new ArrayList<>();
@@ -90,10 +99,10 @@ public class ExplorerFragment extends Fragment {
 		if (!(currFolder.getName().equals(Const.pkg))) {
 			explorerFiles.add(new ExplorerFile("...", currFolder.getParent(), false, true, false));
 		}
-		ArrayList<String> gameFiles = new ArrayList<>();
-		gameFiles.add("files");
-		gameFiles.add("shared_prefs");
-		gameFiles.addAll(Const.gameFilesPaths.keySet());
+
+		if (gameFiles.size() == 2)
+			for (IGameFile gameFile : GameFileResolver.getGameFiles())
+				gameFiles.add(new PussyFile(gameFile.getPath()).getName());
 		List<PussyFile> files = Arrays.asList(Objects.requireNonNull(currFolder.listFiles()));
 		List<ExplorerFile> sortedFolders = new ArrayList<>();
 		List<ExplorerFile> sortedFiles = new ArrayList<>();
@@ -107,8 +116,7 @@ public class ExplorerFragment extends Fragment {
 				if (pussyFile.isFile()) {
 					sortedFiles.add(new ExplorerFile(pussyFile.getName(), pussyFile.getPath(), true, false, false));
 					continue;
-				}
-				if (pussyFile.isDirectory()) {
+				} else if (pussyFile.isDirectory()) {
 					sortedFolders.add(new ExplorerFile(pussyFile.getName(), pussyFile.getPath(), false, true, false));
 					continue;
 				}
@@ -117,7 +125,7 @@ public class ExplorerFragment extends Fragment {
 		}
 		explorerFiles.addAll(sortedFolders);
 		explorerFiles.addAll(sortedFiles);
-		ExplorerAdapter explorerAdapter = new ExplorerAdapter(explorerContext, explorerFiles);
+		ExplorerAdapter explorerAdapter = new ExplorerAdapter(explorerContext, explorerFiles, this::openInExplorer);
 		TextView textView = view.findViewById(R.id.path);
 		textView.setText(currFolder.getName());
 		assert explorer != null : "Explorer is null";

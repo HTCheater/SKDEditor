@@ -53,7 +53,13 @@ public class PussyShell {
 	}
 
 	public static void init(Runnable r) throws IOException {
-		Process process = Runtime.getRuntime().exec("su");
+		Process process;
+		try {
+			process = Runtime.getRuntime().exec("su");
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			return;
+		}
 		in = new NoCloseInputStream(process.getInputStream());
 		out = new NoCloseOutputStream(process.getOutputStream());
 		err = new NoCloseInputStream(process.getErrorStream());
@@ -61,6 +67,8 @@ public class PussyShell {
 	}
 
 	public static boolean isRoot() {
+		if (in == null)
+			return true;
 		Executor executor = Executors.newSingleThreadExecutor();
 		AtomicBoolean isRoot = new AtomicBoolean(false);
 		executor.execute(() -> {
@@ -121,7 +129,7 @@ public class PussyShell {
 		}
 	}
 
-	public void exec() {
+	public synchronized void exec() {
 		try {
 			Log.i("PussyShell", "Command: " + commands);
 			BufferedReader stdInput = new BufferedReader(new

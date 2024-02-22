@@ -90,7 +90,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		Handler handler = new Handler(Looper.myLooper());
+		Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 
 		executor.execute(() -> {
@@ -135,14 +135,10 @@ public class BackupPicker extends BottomSheetDialogFragment {
 				// Check the longest file among variants
 				// It is most likely to be the one the user wants to backup
 				for (int i = 1; i < pickerElements.size(); i++) {
-					Log.d("Remove garbage", "path: " + pickerElements.get(i - 1).getGameFile().getPath());
-					Log.d("Compare", pickerElements.get(i - 1).getGameFile().getRealName() + " and " + pickerElements.get(i).getGameFile().getRealName());
 					if (pickerElements.get(i - 1).getGameFile().getName()
 							.equals(pickerElements.get(i).getGameFile().getName())) {
 						pickerElements.get(i).setChecked(false);
-						continue;
 					}
-					Log.d("Compare", "not equal: " + pickerElements.get(i - 1).getGameFile().getName() + ", " + pickerElements.get(i).getGameFile().getName());
 				}
 			}
 			Collections.sort(pickerElements, (gf1, gf2) ->
@@ -156,14 +152,15 @@ public class BackupPicker extends BottomSheetDialogFragment {
 					super.dismiss();
 					return;
 				}
-				requireView().findViewById(R.id.loading).setVisibility(View.GONE);
-				requireView().findViewById(R.id.buttons).setVisibility(View.VISIBLE);
+				view.findViewById(R.id.loading).setVisibility(View.GONE);
+				view.findViewById(R.id.buttons).setVisibility(View.VISIBLE);
 
 				picker.setAdapter(new BackupPickerAdapter(requireContext(), pickerElements));
-				requireView().findViewById(R.id.discard).setOnClickListener(v -> super.dismiss());
-				requireView().findViewById(R.id.restore).setOnClickListener(v -> {
-					View progressBar = view.findViewById(R.id.loading);
-					progressBar.setVisibility(View.VISIBLE);
+				view.findViewById(R.id.discard).setOnClickListener(v -> super.dismiss());
+				view.findViewById(R.id.restore).setOnClickListener(v -> {
+					view.findViewById(R.id.loading).setVisibility(View.VISIBLE);
+					view.findViewById(R.id.buttons).setVisibility(View.GONE);
+					view.findViewById(R.id.picker).setVisibility(View.GONE);
 					boolean shouldBackup = false;
 					for (PickerElement element : pickerElements)
 						if (element.isChecked()) {
@@ -175,14 +172,10 @@ public class BackupPicker extends BottomSheetDialogFragment {
 						return;
 					}
 
-					Handler handler1 = new Handler(Looper.myLooper());
 					ExecutorService executor1 = Executors.newSingleThreadExecutor();
 
 					if (path.equals("")) {
-						requireView().findViewById(R.id.buttons).setVisibility(View.INVISIBLE);
-						requireView().findViewById(R.id.picker).setVisibility(View.INVISIBLE);
 						setCancelable(false);
-
 						executor1.execute(() -> {
 							try {
 								List<IGameFile> files = new ArrayList<>();
@@ -194,7 +187,7 @@ public class BackupPicker extends BottomSheetDialogFragment {
 							         ParserConfigurationException | SAXException e) {
 								e.printStackTrace();
 							}
-							handler1.post(() -> {
+							handler.post(() -> {
 								dismiss();
 								update();
 								Toast.makeText(getContext(), "Successfully created backup", Toast.LENGTH_SHORT).show();
@@ -207,19 +200,19 @@ public class BackupPicker extends BottomSheetDialogFragment {
 							try {
 								HashMap<String, Byte[]> backup1 = readBackup(path);
 								restoreBackup(backup1);
-								handler1.post(() -> {
+								handler.post(() -> {
 									dismiss();
 									Toast.makeText(getContext(), "Successfully restored from the backup", Toast.LENGTH_SHORT).show();
 								});
 							} catch (IOException e) {
 								e.printStackTrace();
-								handler1.post(() -> {
+								handler.post(() -> {
 									Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
 									dismiss();
 								});
 								return;
 							}
-							handler1.post(() -> {
+							handler.post(() -> {
 								dismiss();
 								Toast.makeText(getContext(), "Successfully restored backup", Toast.LENGTH_SHORT).show();
 							});

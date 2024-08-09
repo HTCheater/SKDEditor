@@ -10,8 +10,8 @@ android {
 		applicationId "com.chichar.skdeditor"
 		minSdk 21
 		targetSdk 34
-		versionCode 38
-		versionName "3.8"
+		versionCode 39
+		versionName "3.9"
         resourceConfigurations += ['en']
         resValue "string", "version", versionName
 	}
